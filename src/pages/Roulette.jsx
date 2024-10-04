@@ -9,7 +9,7 @@ const data = [
   },
   {
     option: "B erl Active Glow Booster Serum",
-    style: { fontSize: 10, backgroundColor: "#000000", textColor: "#fff" },
+    style: { fontSize: 10, backgroundColor: "#F4E3C5", textColor: "#fff" },
   },
   {
     option: "Voucher 5%",
@@ -31,9 +31,14 @@ const data = [
     option: "Voucher 15%",
     style: { fontSize: 12, backgroundColor: "#E9D29C", textColor: "#333" },
   },
+  {
+    option: "Logam Mulia 1 Gram",
+    style: { fontSize: 12, backgroundColor: "#E9D29C", textColor: "#333" },
+  },
 ];
 
-const prizeWeights = [5, 5, 25, 20, 20, 12.5, 12.5];
+const prizeWeights = [1, 5, 20, 20, 20, 15, 15, 0];
+
 
 const getCurrentDate = () => {
   const now = new Date();
@@ -48,7 +53,6 @@ const Roulette = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    // Detect system's dark mode preference
     const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
     setIsDarkMode(darkModeQuery.matches);
 
@@ -59,7 +63,7 @@ const Roulette = () => {
   }, []);
 
   const handleSpinClick = () => {
-    if (!canSpin) return;
+    if (canSpin) return;
 
     const totalWeight = prizeWeights.reduce((acc, cur) => acc + cur, 0);
     const randomNum = Math.random() * totalWeight;
@@ -175,7 +179,7 @@ const Roulette = () => {
 
       <button
         onClick={handleSpinClick}
-        disabled={mustSpin || !canSpin}
+        disabled={mustSpin || canSpin}
         style={{
           marginTop: 20,
           padding: "10px 20px",
@@ -186,7 +190,7 @@ const Roulette = () => {
           fontWeight: "bold",
         }}
       >
-        {mustSpin ? "Spinning..." : canSpin ? "Putar Sekarang!" : "Kembali Lagi Besok!"}
+        {mustSpin ? "Spinning..." : !canSpin ? "Putar Sekarang!" : "Kembali Lagi Besok!"}
       </button>
 
       <Modal
