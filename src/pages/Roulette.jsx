@@ -45,12 +45,17 @@ const Roulette = () => {
   const [prizeNumber, setPrizeNumber] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [canSpin, setCanSpin] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
+    // Detect system's dark mode preference
+    const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    setIsDarkMode(darkModeQuery.matches);
+
+    darkModeQuery.addEventListener("change", (e) => setIsDarkMode(e.matches));
+
     const lastSpinDate = localStorage.getItem("lastSpinDate");
-    if (lastSpinDate === getCurrentDate()) {
-      setCanSpin(false);
-    }
+    if (lastSpinDate === getCurrentDate()) setCanSpin(false);
   }, []);
 
   const handleSpinClick = () => {
@@ -71,7 +76,6 @@ const Roulette = () => {
 
     setPrizeNumber(selectedPrize);
     setMustSpin(true);
-
     localStorage.setItem("lastSpinDate", getCurrentDate());
     setCanSpin(false);
   };
@@ -81,8 +85,28 @@ const Roulette = () => {
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const closeModal = () => setIsModalOpen(false);
+
+  const modalStyle = {
+    content: {
+      top: "50%",
+      left: "50%",
+      right: "auto",
+      bottom: "auto",
+      transform: "translate(-50%, -50%)",
+      textAlign: "center",
+      padding: "20px",
+      borderRadius: "15px",
+      maxWidth: "90%",
+      width: "400px",
+      backgroundColor: isDarkMode ? "#333" : "#fff",
+      color: isDarkMode ? "#fff" : "#333",
+      zIndex: 1000,
+    },
+    overlay: {
+      backgroundColor: "rgba(0, 0, 0, 0.8)",
+      zIndex: 999,
+    },
   };
 
   return (
@@ -100,7 +124,13 @@ const Roulette = () => {
           alt="Logo"
           style={{ width: "80px", marginBottom: "10px" }}
         />
-        <h1 style={{ fontSize: "25px", color: "#333", fontWeight: "bold" }}>
+        <h1
+          style={{
+            fontSize: "25px",
+            color: isDarkMode ? "#ddd" : "#333",
+            fontWeight: "bold",
+          }}
+        >
           Pin Hadiahmu Sekarang!
         </h1>
       </div>
@@ -116,7 +146,13 @@ const Roulette = () => {
         <Wheel
           mustStartSpinning={mustSpin}
           prizeNumber={prizeNumber}
-          data={data}
+          data={data.map((item) => ({
+            ...item,
+            style: {
+              ...item.style,
+              textColor: isDarkMode ? "#fff" : "#333",
+            },
+          }))}
           backgroundColors={["#3e3e3e", "#df3428"]}
           textColors={["#ffffff"]}
           onStopSpinning={handleStopSpinning}
@@ -145,94 +181,61 @@ const Roulette = () => {
           padding: "10px 20px",
           fontSize: 20,
           cursor: "pointer",
-          backgroundColor:'#E9D29C',
-          fontWeight:'bold'
-        
+          backgroundColor: isDarkMode ? "#444" : "#E9D29C",
+          color: isDarkMode ? "#fff" : "#333",
+          fontWeight: "bold",
         }}
       >
-        {mustSpin
-          ? "Spinning..."
-          : canSpin
-          ? "Putar Sekarang!"
-          : "Kembali Lagi Besok!"}
+        {mustSpin ? "Spinning..." : canSpin ? "Putar Sekarang!" : "Kembali Lagi Besok!"}
       </button>
 
       <Modal
-  isOpen={isModalOpen}
-  onRequestClose={closeModal}
-  contentLabel="Prize Modal"
-  style={{
-    content: {
-      top: "50%",
-      left: "50%",
-      right: "auto",
-      bottom: "auto",
-      transform: "translate(-50%, -50%)",
-      textAlign: "center",
-      padding: "20px",
-      borderRadius: "15px",
-      maxWidth: "90%",
-      width: "400px",
-      zIndex: 1000,
-    },
-    overlay: {
-      backgroundColor: "rgba(0, 0, 0, 0.8)",
-      zIndex: 999,
-    },
-  }}
->
-  {prizeNumber !== null && (
-    <>
-      <h2 style={{ fontSize: "1.5em", marginBottom: "10px", color: "#333" }}>
-        🎉 Selamat! Anda memenangkan <span style={{ color: "#e67e22" }}>{data[prizeNumber].option}</span>!
-      </h2>
-      <p style={{ fontSize: "1em", color: "#555" }}>
-        Deskripsi Hadiah: Anda memenangkan <span style={{ fontWeight: "bold" }}>{data[prizeNumber].option}</span>.
-      </p>
-      <p style={{ fontSize: "1em", color: "#555" }}>
-        <strong>Ambil screenshot</strong> dari tampilan ini untuk menukarkan hadiah Anda.
-      </p>
-      <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>
-        <button 
-          onClick={() => window.open("https://wa.me/6282122870473", "_blank")} 
-          style={{
-            padding: "12px 24px",
-            fontSize: "1em",
-            backgroundColor: "#25D366", 
-            color: "#fff",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            transition: "background-color 0.3s",
-          }}
-          onMouseOver={(e) => (e.target.style.backgroundColor = "#1EBE5E")}
-          onMouseOut={(e) => (e.target.style.backgroundColor = "#25D366")}
-        >
-          Kirim ke WhatsApp
-        </button>
-        <button 
-          onClick={closeModal} 
-          style={{
-            padding: "12px 24px",
-            fontSize: "1em",
-            backgroundColor: "#E9D29C",
-            color: "#000",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            transition: "background-color 0.3s",
-          }}
-          onMouseOver={(e) => (e.target.style.backgroundColor = "#F4E3C5")}
-          onMouseOut={(e) => (e.target.style.backgroundColor = "#E9D29C")}
-        >
-          Tutup
-        </button>
-      </div>
-    </>
-  )}
-</Modal>
-
-
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        contentLabel="Prize Modal"
+        style={modalStyle}
+      >
+        {prizeNumber !== null && (
+          <>
+            <h2 style={{ fontSize: "1.5em", marginBottom: "10px" }}>
+              🎉 Selamat! Anda memenangkan{" "}
+              <span style={{ color: "#e67e22" }}>{data[prizeNumber].option}</span>!
+            </h2>
+            <p>Deskripsi Hadiah: Anda memenangkan {data[prizeNumber].option}.</p>
+            <p><strong>Ambil screenshot</strong> dari tampilan ini untuk menukarkan hadiah Anda.</p>
+            <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>
+              <button
+                onClick={() => window.open("https://wa.me/6282122870473", "_blank")}
+                style={{
+                  padding: "12px 24px",
+                  backgroundColor: "#25D366",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  transition: "background-color 0.3s",
+                }}
+              >
+                Kirim ke WhatsApp
+              </button>
+              <button
+                onClick={closeModal}
+                style={{
+                  padding: "12px 24px",
+                  backgroundColor: isDarkMode ? "#444" : "#E9D29C",
+                  color: isDarkMode ? "#fff" : "#333",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  transition: "background-color 0.3s",
+                }}
+              >
+                Tutup
+              </button>
+            </div>
+          </>
+        )}
+      </Modal>
     </div>
   );
 };
