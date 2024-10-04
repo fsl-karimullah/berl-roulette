@@ -187,32 +187,51 @@ const Roulette = () => {
         🎉 Selamat! Anda memenangkan <span style={{ color: "#e67e22" }}>{data[prizeNumber].option}</span>!
       </h2>
       <p style={{ fontSize: "1em", color: "#555" }}>
-        Deskripsi Hadiah: Anda memenangkan <span style={{ fontWeight: "bold" }}>{data[prizeNumber].option}</span>. 
+        Deskripsi Hadiah: Anda memenangkan <span style={{ fontWeight: "bold" }}>{data[prizeNumber].option}</span>.
       </p>
       <p style={{ fontSize: "1em", color: "#555" }}>
         <strong>Ambil screenshot</strong> dari tampilan ini untuk menukarkan hadiah Anda.
       </p>
-      <button 
-        onClick={closeModal} 
-        style={{
-          marginTop: "20px",
-          padding: "12px 24px",
-          fontSize: "1em",
-          backgroundColor: "#E9D29C",
-          color: "#000",
-          border: "none",
-          borderRadius: "8px", 
-          cursor: "pointer",
-          transition: "background-color 0.3s",
-        }}
-        onMouseOver={(e) => (e.target.style.backgroundColor = "#F4E3C5")}
-        onMouseOut={(e) => (e.target.style.backgroundColor = "#E9D29C")}
-      >
-        Tutup
-      </button>
+      <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>
+        <button 
+          onClick={() => window.open("https://wa.me/6282122870473", "_blank")} 
+          style={{
+            padding: "12px 24px",
+            fontSize: "1em",
+            backgroundColor: "#25D366", 
+            color: "#fff",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            transition: "background-color 0.3s",
+          }}
+          onMouseOver={(e) => (e.target.style.backgroundColor = "#1EBE5E")}
+          onMouseOut={(e) => (e.target.style.backgroundColor = "#25D366")}
+        >
+          Kirim ke WhatsApp
+        </button>
+        <button 
+          onClick={closeModal} 
+          style={{
+            padding: "12px 24px",
+            fontSize: "1em",
+            backgroundColor: "#E9D29C",
+            color: "#000",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            transition: "background-color 0.3s",
+          }}
+          onMouseOver={(e) => (e.target.style.backgroundColor = "#F4E3C5")}
+          onMouseOut={(e) => (e.target.style.backgroundColor = "#E9D29C")}
+        >
+          Tutup
+        </button>
+      </div>
     </>
   )}
 </Modal>
+
 
     </div>
   );
