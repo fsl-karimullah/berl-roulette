@@ -54,7 +54,7 @@ const Roulette = () => {
   }, []);
 
   const handleSpinClick = () => {
-    if (canSpin) return;
+    if (!canSpin) return;
 
     const totalWeight = prizeWeights.reduce((acc, cur) => acc + cur, 0);
     const randomNum = Math.random() * totalWeight;
@@ -139,7 +139,7 @@ const Roulette = () => {
 
       <button
         onClick={handleSpinClick}
-        disabled={mustSpin || canSpin}
+        disabled={mustSpin || !canSpin}
         style={{
           marginTop: 20,
           padding: "10px 20px",
@@ -152,7 +152,7 @@ const Roulette = () => {
       >
         {mustSpin
           ? "Spinning..."
-          : !canSpin
+          : canSpin
           ? "Putar Sekarang!"
           : "Kembali Lagi Besok!"}
       </button>
