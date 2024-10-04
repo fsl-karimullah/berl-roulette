@@ -37,7 +37,7 @@ const data = [
   },
 ];
 
-const prizeWeights = [1, 5, 20, 20, 20, 15, 15, 0];
+const prizeWeights = [1, 1, 20, 20, 20, 15, 15, 0];
 
 
 const getCurrentDate = () => {
