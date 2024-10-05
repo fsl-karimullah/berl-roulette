@@ -6,39 +6,36 @@ const data = [
   {
     option: "B erl Perfume",
     style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#000" },
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/PARFUM%20MS%205.png?raw=true", 
   },
   {
     option: "B erl Active Glow Booster Serum",
     style: { fontSize: 10, backgroundColor: "#F4E3C5", textColor: "#fff" },
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/png%20NEW%20AGB%203.png?raw=true", 
   },
   {
     option: "Voucher 5%",
     style: { fontSize: 12, backgroundColor: "#E8ACAC", textColor: "#000" },
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Logo-BerlFamily.png?raw=true", 
   },
   {
     option: "Voucher 10%",
     style: { fontSize: 12, backgroundColor: "#E8ACAC", textColor: "#000" },
-  },
-  {
-    option: "Voucher 10%",
-    style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#000" },
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Logo-BerlFamily.png?raw=true", 
   },
   {
     option: "Voucher 15%",
     style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#333" },
-  },
-  {
-    option: "Voucher 15%",
-    style: { fontSize: 12, backgroundColor: "#E9D29C", textColor: "#333" },
+    img: "", 
   },
   {
     option: "Logam Mulia 1 Gram",
     style: { fontSize: 12, backgroundColor: "#E9D29C", textColor: "#333" },
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Logo-BerlFamily.png?raw=true", 
   },
 ];
 
-const prizeWeights = [1, 1, 20, 20, 20, 15, 15, 0];
-
+const prizeWeights = [1, 1, 20, 20, 15, 0];
 
 const getCurrentDate = () => {
   const now = new Date();
@@ -63,7 +60,7 @@ const Roulette = () => {
   }, []);
 
   const handleSpinClick = () => {
-    if (canSpin) return;
+    if (!canSpin) return;
 
     const totalWeight = prizeWeights.reduce((acc, cur) => acc + cur, 0);
     const randomNum = Math.random() * totalWeight;
@@ -179,7 +176,7 @@ const Roulette = () => {
 
       <button
         onClick={handleSpinClick}
-        disabled={mustSpin || canSpin}
+        disabled={mustSpin || !canSpin}
         style={{
           marginTop: 20,
           padding: "10px 20px",
@@ -190,7 +187,7 @@ const Roulette = () => {
           fontWeight: "bold",
         }}
       >
-        {mustSpin ? "Spinning..." : !canSpin ? "Putar Sekarang!" : "Kembali Lagi Besok!"}
+        {mustSpin ? "Spinning..." : canSpin ? "Putar Sekarang!" : "Kembali Lagi Besok!"}
       </button>
 
       <Modal
@@ -205,6 +202,11 @@ const Roulette = () => {
               🎉 Selamat! Anda memenangkan{" "}
               <span style={{ color: "#e67e22" }}>{data[prizeNumber].option}</span>!
             </h2>
+            <img
+              src={data[prizeNumber].img}
+              alt={data[prizeNumber].option}
+              style={{ width: "100px", height: "150px", marginBottom: "10px" }}
+            />
             <p>Deskripsi Hadiah: Anda memenangkan {data[prizeNumber].option}.</p>
             <p><strong>Ambil screenshot</strong> dari tampilan ini untuk menukarkan hadiah Anda.</p>
             <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>
