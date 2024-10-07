@@ -211,7 +211,7 @@ const Roulette = () => {
             <p><strong>Ambil screenshot</strong> dari tampilan ini untuk menukarkan hadiah Anda.</p>
             <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>
               <button
-                onClick={() => window.open("https://wa.me/6282122870473", "_blank")}
+                onClick={() => window.open("https://wa.me/6282122870473?text=Halo%20kak!%20Aku%20Mau%20tukar%20hadiahku%20nih", "_blank")}
                 style={{
                   padding: "12px 24px",
                   backgroundColor: "#25D366",
