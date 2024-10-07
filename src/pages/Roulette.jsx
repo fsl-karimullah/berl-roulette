@@ -6,32 +6,32 @@ const data = [
   {
     option: "B erl Perfume",
     style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#000" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/perfume.png?raw=true", 
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/perfume.png?raw=true",
   },
   {
     option: "B erl Active Glow Booster Serum",
     style: { fontSize: 10, backgroundColor: "#F4E3C5", textColor: "#fff" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Agb.png?raw=true", 
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Agb.png?raw=true",
   },
   {
     option: "Voucher 5%",
     style: { fontSize: 12, backgroundColor: "#E8ACAC", textColor: "#000" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%205.png?raw=true", 
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%205.png?raw=true",
   },
   {
     option: "Voucher 10%",
     style: { fontSize: 12, backgroundColor: "#E8ACAC", textColor: "#000" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%2010.png?raw=true", 
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%2010.png?raw=true",
   },
   {
     option: "Voucher 15%",
     style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#333" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%2015.png?raw=true", 
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%2015.png?raw=true",
   },
   {
     option: "Logam Mulia 1 Gram",
     style: { fontSize: 12, backgroundColor: "#E9D29C", textColor: "#333" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/LM%201.png?raw=true", 
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/LM%201.png?raw=true",
   },
 ];
 
@@ -48,6 +48,7 @@ const Roulette = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [canSpin, setCanSpin] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [chancesLeft, setChancesLeft] = useState(2);  
 
   useEffect(() => {
     const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -56,11 +57,14 @@ const Roulette = () => {
     darkModeQuery.addEventListener("change", (e) => setIsDarkMode(e.matches));
 
     const lastSpinDate = localStorage.getItem("lastSpinDate");
-    if (lastSpinDate === getCurrentDate()) setCanSpin(false);
+    if (lastSpinDate === getCurrentDate()) {
+      setCanSpin(false);
+      setChancesLeft(0); 
+    }
   }, []);
 
   const handleSpinClick = () => {
-    if (!canSpin) return;
+    if (!canSpin || chancesLeft === 0) return;
 
     const totalWeight = prizeWeights.reduce((acc, cur) => acc + cur, 0);
     const randomNum = Math.random() * totalWeight;
@@ -77,8 +81,12 @@ const Roulette = () => {
 
     setPrizeNumber(selectedPrize);
     setMustSpin(true);
-    localStorage.setItem("lastSpinDate", getCurrentDate());
-    setCanSpin(false);
+    setChancesLeft((prevChances) => prevChances - 1);  
+
+    if (chancesLeft === 1) {
+      localStorage.setItem("lastSpinDate", getCurrentDate());
+      setCanSpin(false);
+    }
   };
 
   const handleStopSpinning = () => {
@@ -176,7 +184,7 @@ const Roulette = () => {
 
       <button
         onClick={handleSpinClick}
-        disabled={mustSpin || !canSpin}
+        disabled={mustSpin || chancesLeft === 0}
         style={{
           marginTop: 20,
           padding: "10px 20px",
@@ -187,7 +195,11 @@ const Roulette = () => {
           fontWeight: "bold",
         }}
       >
-        {mustSpin ? "Spinning..." : canSpin ? "Putar Sekarang!" : "Kembali Lagi Besok!"}
+        {mustSpin
+          ? "Spinning..."
+          : chancesLeft > 0
+          ? `Putar Sekarang! (${chancesLeft} kesempatan tersisa)`
+          : "Kembali Lagi Besok!"}
       </button>
 
       <Modal
