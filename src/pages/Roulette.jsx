@@ -6,32 +6,32 @@ const data = [
   {
     option: "B erl Perfume",
     style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#000" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/PARFUM%20MS%205.png?raw=true", 
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/perfume.png?raw=true", 
   },
   {
     option: "B erl Active Glow Booster Serum",
     style: { fontSize: 10, backgroundColor: "#F4E3C5", textColor: "#fff" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/png%20NEW%20AGB%203.png?raw=true", 
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Agb.png?raw=true", 
   },
   {
     option: "Voucher 5%",
     style: { fontSize: 12, backgroundColor: "#E8ACAC", textColor: "#000" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Logo-BerlFamily.png?raw=true", 
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%205.png?raw=true", 
   },
   {
     option: "Voucher 10%",
     style: { fontSize: 12, backgroundColor: "#E8ACAC", textColor: "#000" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Logo-BerlFamily.png?raw=true", 
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%2010.png?raw=true", 
   },
   {
     option: "Voucher 15%",
     style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#333" },
-    img: "", 
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%2015.png?raw=true", 
   },
   {
     option: "Logam Mulia 1 Gram",
     style: { fontSize: 12, backgroundColor: "#E9D29C", textColor: "#333" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Logo-BerlFamily.png?raw=true", 
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/LM%201.png?raw=true", 
   },
 ];
 
@@ -121,9 +121,9 @@ const Roulette = () => {
         }}
       >
         <img
-          src="https://github.com/fsl-karimullah/my-img-source/blob/main/Logo-BerlFamily.png?raw=true"
+          src="https://github.com/fsl-karimullah/my-img-source/blob/main/logo.png?raw=true"
           alt="Logo"
-          style={{ width: "80px", marginBottom: "10px" }}
+          style={{ width: "200px", marginBottom: "10px" }}
         />
         <h1
           style={{
@@ -205,7 +205,7 @@ const Roulette = () => {
             <img
               src={data[prizeNumber].img}
               alt={data[prizeNumber].option}
-              style={{ width: "100px", height: "150px", marginBottom: "10px" }}
+              style={{ width: "200px", height: "120px", marginBottom: "10px" }}
             />
             <p>Deskripsi Hadiah: Anda memenangkan {data[prizeNumber].option}.</p>
             <p><strong>Ambil screenshot</strong> dari tampilan ini untuk menukarkan hadiah Anda.</p>
