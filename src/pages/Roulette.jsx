@@ -65,7 +65,8 @@ const Roulette = () => {
         setCanSpin(false);
       }
     } else if (lastSpinDate !== getCurrentDate()) {
-      // Reset chances if it's a new day
+      // Only reset if the date changes and chancesLeft is already null
+      localStorage.setItem("lastSpinDate", getCurrentDate());
       localStorage.setItem("chancesLeft", 2);
       setChancesLeft(2);
       setCanSpin(true);
@@ -220,6 +221,7 @@ const Roulette = () => {
         onRequestClose={closeModal}
         contentLabel="Prize Modal"
         style={modalStyle}
+        ariaHideApp={false}
       >
         {prizeNumber !== null && (
           <>
@@ -233,10 +235,24 @@ const Roulette = () => {
               style={{ width: "200px", height: "120px", marginBottom: "10px" }}
             />
             <p>Deskripsi Hadiah: Anda memenangkan {data[prizeNumber].option}.</p>
-            <p><strong>Ambil screenshot</strong> dari tampilan ini untuk menukarkan hadiah Anda.</p>
-            <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>
+            <p>
+              <strong>Ambil screenshot</strong> dari tampilan ini untuk menukarkan hadiah Anda.
+            </p>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: "10px",
+                marginTop: "20px",
+              }}
+            >
               <button
-                onClick={() => window.open("https://wa.me/6282122870473?text=Halo%20kak!%20Aku%20Mau%20tukar%20hadiahku%20nih", "_blank")}
+                onClick={() =>
+                  window.open(
+                    "https://wa.me/6282122870473?text=Halo%20kak!%20Aku%20Mau%20tukar%20hadiahku%20nih",
+                    "_blank"
+                  )
+                }
                 style={{
                   padding: "12px 24px",
                   backgroundColor: "#25D366",
