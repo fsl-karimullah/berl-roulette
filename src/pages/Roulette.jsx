@@ -35,7 +35,7 @@ const data = [
   },
 ];
 
-const prizeWeights = [0, 1, 20, 20, 15, 1]; // 0 chance for gold prize
+const prizeWeights = [0, 1, 1, 60, 50, 40]; 
 
 const getCurrentDate = () => {
   const now = new Date();
