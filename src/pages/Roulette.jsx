@@ -16,7 +16,7 @@ const data = [
   {
     option: "B erl Active Glow Booster Serum",
     style: { fontSize: 10, backgroundColor: "#F4E3C5", textColor: "#fff" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Agb.png?raw=true", 
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Agb.png?raw=true",
   },
   {
     option: "Voucher 5%",
@@ -32,11 +32,10 @@ const data = [
     option: "Voucher 15%",
     style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#333" },
     img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%2015.png?raw=true",
-  }
- 
+  },
 ];
 
-const prizeWeights = [0, 1, 20, 20, 15, 1];
+const prizeWeights = [0, 1, 20, 20, 15, 1]; // 0 chance for gold prize
 
 const getCurrentDate = () => {
   const now = new Date();
@@ -45,7 +44,7 @@ const getCurrentDate = () => {
 
 const Roulette = () => {
   const [mustSpin, setMustSpin] = useState(false);
-  const [prizeNumber, setPrizeNumber] = useState(null);
+  const [prizeNumber, setPrizeNumber] = useState(3); // Start at index 3 ("Voucher 5%")
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [canSpin, setCanSpin] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -65,7 +64,7 @@ const Roulette = () => {
       if (parseInt(savedChancesLeft, 10) === 0) {
         setCanSpin(false);
       }
-    } else {
+    } else if (lastSpinDate !== getCurrentDate()) {
       // Reset chances if it's a new day
       localStorage.setItem("chancesLeft", 2);
       setChancesLeft(2);
