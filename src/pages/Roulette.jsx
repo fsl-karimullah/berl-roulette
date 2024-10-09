@@ -4,6 +4,11 @@ import Modal from "react-modal";
 
 const data = [
   {
+    option: "Logam Mulia 1 Gram",
+    style: { fontSize: 12, backgroundColor: "#E9D29C", textColor: "#333" },
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/LM%201.png?raw=true",
+  },
+  {
     option: "B erl Perfume",
     style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#000" },
     img: "https://github.com/fsl-karimullah/my-img-source/blob/main/perfume.png?raw=true",
@@ -11,7 +16,7 @@ const data = [
   {
     option: "B erl Active Glow Booster Serum",
     style: { fontSize: 10, backgroundColor: "#F4E3C5", textColor: "#fff" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Agb.png?raw=true",
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Agb.png?raw=true", 
   },
   {
     option: "Voucher 5%",
@@ -27,15 +32,11 @@ const data = [
     option: "Voucher 15%",
     style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#333" },
     img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%2015.png?raw=true",
-  },
-  {
-    option: "Logam Mulia 1 Gram",
-    style: { fontSize: 12, backgroundColor: "#E9D29C", textColor: "#333" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/LM%201.png?raw=true",
-  },
+  }
+ 
 ];
 
-const prizeWeights = [1, 1, 20, 20, 15, 0];
+const prizeWeights = [0, 1, 20, 20, 15, 1];
 
 const getCurrentDate = () => {
   const now = new Date();
@@ -48,7 +49,7 @@ const Roulette = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [canSpin, setCanSpin] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [chancesLeft, setChancesLeft] = useState(2);  
+  const [chancesLeft, setChancesLeft] = useState(2);
 
   useEffect(() => {
     const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -57,9 +58,18 @@ const Roulette = () => {
     darkModeQuery.addEventListener("change", (e) => setIsDarkMode(e.matches));
 
     const lastSpinDate = localStorage.getItem("lastSpinDate");
-    if (lastSpinDate === getCurrentDate()) {
-      setCanSpin(false);
-      setChancesLeft(0); 
+    const savedChancesLeft = localStorage.getItem("chancesLeft");
+
+    if (lastSpinDate === getCurrentDate() && savedChancesLeft !== null) {
+      setChancesLeft(parseInt(savedChancesLeft, 10));
+      if (parseInt(savedChancesLeft, 10) === 0) {
+        setCanSpin(false);
+      }
+    } else {
+      // Reset chances if it's a new day
+      localStorage.setItem("chancesLeft", 2);
+      setChancesLeft(2);
+      setCanSpin(true);
     }
   }, []);
 
@@ -81,7 +91,11 @@ const Roulette = () => {
 
     setPrizeNumber(selectedPrize);
     setMustSpin(true);
-    setChancesLeft((prevChances) => prevChances - 1);  
+    setChancesLeft((prevChances) => {
+      const newChances = prevChances - 1;
+      localStorage.setItem("chancesLeft", newChances); // Update localStorage
+      return newChances;
+    });
 
     if (chancesLeft === 1) {
       localStorage.setItem("lastSpinDate", getCurrentDate());
