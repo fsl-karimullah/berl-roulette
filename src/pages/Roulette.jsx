@@ -35,7 +35,7 @@ const data = [
   },
 ];
 
-const prizeWeights = [0, 1, 1, 60, 50, 40]; 
+const prizeWeights = [0, 0, 0, 90, 80, 70];
 
 const getCurrentDate = () => {
   const now = new Date();
@@ -227,16 +227,22 @@ const Roulette = () => {
           <>
             <h2 style={{ fontSize: "1.5em", marginBottom: "10px" }}>
               🎉 Selamat! Anda memenangkan{" "}
-              <span style={{ color: "#e67e22" }}>{data[prizeNumber].option}</span>!
+              <span style={{ color: "#e67e22" }}>
+                {data[prizeNumber].option}
+              </span>
+              !
             </h2>
             <img
               src={data[prizeNumber].img}
               alt={data[prizeNumber].option}
               style={{ width: "200px", height: "120px", marginBottom: "10px" }}
             />
-            <p>Deskripsi Hadiah: Anda memenangkan {data[prizeNumber].option}.</p>
             <p>
-              <strong>Ambil screenshot</strong> dari tampilan ini untuk menukarkan hadiah Anda.
+              Deskripsi Hadiah: Anda memenangkan {data[prizeNumber].option}.
+            </p>
+            <p>
+              <strong>Ambil screenshot</strong> dari tampilan ini untuk
+              menukarkan hadiah Anda.
             </p>
             <div
               style={{
