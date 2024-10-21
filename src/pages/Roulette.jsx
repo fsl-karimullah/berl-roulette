@@ -44,7 +44,7 @@ const getCurrentDate = () => {
 
 const Roulette = () => {
   const [mustSpin, setMustSpin] = useState(false);
-  const [prizeNumber, setPrizeNumber] = useState(3); // Start at index 3 ("Voucher 5%")
+  const [prizeNumber, setPrizeNumber] = useState(3); 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [canSpin, setCanSpin] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
