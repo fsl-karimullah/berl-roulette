@@ -4,13 +4,16 @@ import axios from "axios";
 import Modal from "react-modal";
 
 const checkLocationProximity = (latitude, longitude) => {
-  const DEBUG_MODE = true;
 
-  const realLat = -6.276769624989821;
-  const realLong = 106.74050432177931;
+  const DEBUG_MODE = false;
 
+
+  //-6.276741778376728, 106.74049479988457
+  const realLat = -6.276741778376728;
+  const realLong = 106.74049479988457;
+ 
   const fakeLat = -6.212442989550739;
-  const fakeLong = 106.68184214795939;
+  const fakeLong = 106.68184214795939; 
 
   const eventLat = DEBUG_MODE ? fakeLat : realLat;
   const eventLong = DEBUG_MODE ? fakeLong : realLong;
@@ -186,10 +189,12 @@ const Form = () => {
           </p>
         </div>
         {isFar ? (
-          <div className="text-center p-6 bg-gray-100 text-red-600">
-            <p>Lokasi Anda terlalu jauh dari event.</p>
-            <p>Mohon lebih dekat lagi 500 meter.</p>
-          </div>
+         <div className="flex justify-center mt-5 mb-5">
+         <div className="bg-red-500 text-white px-6 py-3 rounded-full shadow-lg font-bold text-center">
+           Lokasi Anda terlalu jauh dari event. <br /> Mohon lebih dekat lagi 500 meter, atau Ke Booth Kami
+         </div>
+       </div>
+       
         ) : (
           <form className="px-6 py-6 space-y-6" onSubmit={handleSubmit}>
             <div className="form-group">

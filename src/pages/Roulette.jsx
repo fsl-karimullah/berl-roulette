@@ -51,13 +51,13 @@ const generateRandomId = () => {
 
 const calculatePrize = () => {
   const weightedOptions = [
-    { index: 0, weight: 80 }, 
-    { index: 1, weight: 15 }, 
-    { index: 2, weight: 10 }, 
-    { index: 3, weight: 5 }, 
-    { index: 4, weight: 0 }, 
-    { index: 5, weight: 0 }, 
-    { index: 6, weight: 0 }, 
+    { index: 0, weight: 80 },
+    { index: 1, weight: 15 },
+    { index: 2, weight: 10 },
+    { index: 3, weight: 5 },
+    { index: 4, weight: 0 },
+    { index: 5, weight: 0 },
+    { index: 6, weight: 0 },
   ];
 
   const totalWeight = weightedOptions.reduce(
@@ -74,7 +74,7 @@ const calculatePrize = () => {
     }
   }
 
-  return 0; 
+  return 0;
 };
 
 const Roulette = () => {
@@ -258,7 +258,16 @@ const Roulette = () => {
             </p>
             <p className="text-center text-white bg-red-700 p-2 rounded-lg my-4">
               Segera ambil hadiahmu di tempat yang telah ditentukan (Booth B erl
-              Cosmetics) Pada Tanggal <span className="text-yellow-300 font-bold">22 Desember 2024</span> Jangan Sampai Kehabisan!
+              Cosmetics) Jangan Sampai Kehabisan!
+            </p>
+            <p className="text-center text-white bg-black p-2 rounded-lg my-4">
+              <span className="text-yellow-400 font-bold">
+                Screenshot Informasi Ini
+              </span>{" "}
+              Dan Tunjukkan Kepada Petugas Booth B erl Cosmetics Pada Tanggal{" "}
+              <span className="text-yellow-300 font-bold">
+                22 Desember 2024
+              </span>
             </p>
             <button
               onClick={closeModal}
