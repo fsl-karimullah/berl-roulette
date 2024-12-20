@@ -4,19 +4,24 @@ import Modal from "react-modal";
 
 const data = [
   {
-    option: "Logam Mulia 1 Gram",
-    style: { fontSize: 12, backgroundColor: "#E9D29C", textColor: "#333" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/LM%201.png?raw=true",
-  },
-  {
-    option: "B erl Perfume",
+    option: "B erl Highlighter",
     style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#000" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/perfume.png?raw=true",
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/hl%201.png?raw=true",
   },
   {
-    option: "B erl Active Glow Booster Serum",
+    option: "B erl Eyebrow",
     style: { fontSize: 10, backgroundColor: "#F4E3C5", textColor: "#fff" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Agb.png?raw=true",
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/eyebrow%201.png?raw=true",
+  },
+  {
+    option: "B erl Mascara",
+    style: { fontSize: 12, backgroundColor: "#E8ACAC", textColor: "#000" },
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/mascara%201.png?raw=true",
+  },
+  {
+    option: "B erl Eyeliner",
+    style: { fontSize: 12, backgroundColor: "#E8ACAC", textColor: "#000" },
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Eyeliner%201.png?raw=true",
   },
   {
     option: "Voucher 5%",
@@ -24,31 +29,62 @@ const data = [
     img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%205.png?raw=true",
   },
   {
-    option: "Voucher 10%",
+    option: "Voucher 15%",
     style: { fontSize: 12, backgroundColor: "#E8ACAC", textColor: "#000" },
     img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%2010.png?raw=true",
   },
   {
-    option: "Voucher 15%",
+    option: "Voucher 20%",
     style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#333" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%2015.png?raw=true",
+    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%2020.png?raw=true",
   },
 ];
 
-const prizeWeights = [0, 0, 0, 90, 80, 70];
-
-const getCurrentDate = () => {
+const getCurrentDateTime = () => {
   const now = new Date();
-  return now.toISOString().split("T")[0];
+  return now.toLocaleString();
+};
+
+const generateRandomId = () => {
+  return Math.floor(1000 + Math.random() * 9000);
+};
+
+const calculatePrize = () => {
+  const weightedOptions = [
+    { index: 0, weight: 80 }, 
+    { index: 1, weight: 15 }, 
+    { index: 2, weight: 10 }, 
+    { index: 3, weight: 5 }, 
+    { index: 4, weight: 0 }, 
+    { index: 5, weight: 0 }, 
+    { index: 6, weight: 0 }, 
+  ];
+
+  const totalWeight = weightedOptions.reduce(
+    (sum, option) => sum + option.weight,
+    0
+  );
+  const randomWeight = Math.random() * totalWeight;
+
+  let cumulativeWeight = 0;
+  for (const option of weightedOptions) {
+    cumulativeWeight += option.weight;
+    if (randomWeight <= cumulativeWeight) {
+      return option.index;
+    }
+  }
+
+  return 0; 
 };
 
 const Roulette = () => {
   const [mustSpin, setMustSpin] = useState(false);
-  const [prizeNumber, setPrizeNumber] = useState(3); 
+  const [prizeNumber, setPrizeNumber] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [canSpin, setCanSpin] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [chancesLeft, setChancesLeft] = useState(2);
+  const [currentDateTime, setCurrentDateTime] = useState(getCurrentDateTime());
+  const [randomId, setRandomId] = useState(generateRandomId());
 
   useEffect(() => {
     const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -56,59 +92,34 @@ const Roulette = () => {
 
     darkModeQuery.addEventListener("change", (e) => setIsDarkMode(e.matches));
 
-    const lastSpinDate = localStorage.getItem("lastSpinDate");
-    const savedChancesLeft = localStorage.getItem("chancesLeft");
-
-    if (lastSpinDate === getCurrentDate() && savedChancesLeft !== null) {
-      setChancesLeft(parseInt(savedChancesLeft, 10));
-      if (parseInt(savedChancesLeft, 10) === 0) {
-        setCanSpin(false);
-      }
-    } else if (lastSpinDate !== getCurrentDate()) {
-      // Only reset if the date changes and chancesLeft is already null
-      localStorage.setItem("lastSpinDate", getCurrentDate());
-      localStorage.setItem("chancesLeft", 2);
-      setChancesLeft(2);
-      setCanSpin(true);
+    const hasSpun = localStorage.getItem("hasSpun");
+    if (hasSpun) {
+      setCanSpin(false); 
     }
   }, []);
 
   const handleSpinClick = () => {
-    if (!canSpin || chancesLeft === 0) return;
+    if (!canSpin) return;
 
-    const totalWeight = prizeWeights.reduce((acc, cur) => acc + cur, 0);
-    const randomNum = Math.random() * totalWeight;
-
-    let cumulativeWeight = 0;
-    let selectedPrize = 0;
-    for (let i = 0; i < prizeWeights.length; i++) {
-      cumulativeWeight += prizeWeights[i];
-      if (randomNum <= cumulativeWeight) {
-        selectedPrize = i;
-        break;
-      }
-    }
-
-    setPrizeNumber(selectedPrize);
+    const prize = calculatePrize();
+    setPrizeNumber(prize);
     setMustSpin(true);
-    setChancesLeft((prevChances) => {
-      const newChances = prevChances - 1;
-      localStorage.setItem("chancesLeft", newChances); // Update localStorage
-      return newChances;
-    });
+    setCanSpin(false);
 
-    if (chancesLeft === 1) {
-      localStorage.setItem("lastSpinDate", getCurrentDate());
-      setCanSpin(false);
-    }
+    localStorage.setItem("hasSpun", "true");
+    localStorage.setItem("lastSpin", getCurrentDateTime());
   };
 
   const handleStopSpinning = () => {
     setMustSpin(false);
     setIsModalOpen(true);
+    setCurrentDateTime(getCurrentDateTime());
+    setRandomId(generateRandomId());
   };
 
-  const closeModal = () => setIsModalOpen(false);
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   const modalStyle = {
     content: {
@@ -198,36 +209,37 @@ const Roulette = () => {
 
       <button
         onClick={handleSpinClick}
-        disabled={mustSpin || chancesLeft === 0}
+        disabled={!canSpin}
         style={{
           marginTop: 20,
           padding: "10px 20px",
           fontSize: 20,
           cursor: "pointer",
-          backgroundColor: isDarkMode ? "#444" : "#E9D29C",
+          backgroundColor: canSpin ? (isDarkMode ? "#444" : "#E9D29C") : "#ccc",
           color: isDarkMode ? "#fff" : "#333",
           fontWeight: "bold",
         }}
       >
         {mustSpin
           ? "Spinning..."
-          : chancesLeft > 0
-          ? `Putar Sekarang! (${chancesLeft} kesempatan tersisa)`
-          : "Kembali Lagi Besok!"}
+          : canSpin
+          ? "Putar Sekarang!"
+          : "Sudah Diputar"}
       </button>
 
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
         contentLabel="Prize Modal"
-        style={modalStyle}
         ariaHideApp={false}
+        className="bg-white rounded-lg shadow-lg p-8 max-w-md mx-auto z-50 relative"
+        overlayClassName="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-40"
       >
         {prizeNumber !== null && (
           <>
-            <h2 style={{ fontSize: "1.5em", marginBottom: "10px" }}>
+            <h2 className="text-2xl font-semibold text-center text-gray-800 mb-4">
               🎉 Selamat! Anda memenangkan{" "}
-              <span style={{ color: "#e67e22" }}>
+              <span style={{ color: "#E9D29C" }}>
                 {data[prizeNumber].option}
               </span>
               !
@@ -235,57 +247,30 @@ const Roulette = () => {
             <img
               src={data[prizeNumber].img}
               alt={data[prizeNumber].option}
-              style={{ width: "200px", height: "120px", marginBottom: "10px" }}
+              className="w-40 h-24 mx-auto mb-4"
             />
-            <p>
-              Deskripsi Hadiah: Anda memenangkan {data[prizeNumber].option}.
+            <p className="text-center text-gray-600 mb-2">
+              Tanggal & Waktu:{" "}
+              <span className="font-medium">{currentDateTime}</span>
             </p>
-            <p>
-              <strong>Ambil screenshot</strong> dari tampilan ini untuk
-              menukarkan hadiah Anda.
+            <p className="text-center text-gray-600">
+              ID Hadiah: <strong className="text-indigo-600">{randomId}</strong>
             </p>
-            <div
+            <p className="text-center text-white bg-red-700 p-2 rounded-lg my-4">
+              Segera ambil hadiahmu di tempat yang telah ditentukan (Booth B erl
+              Cosmetics) Pada Tanggal <span className="text-yellow-300 font-bold">22 Desember 2024</span> Jangan Sampai Kehabisan!
+            </p>
+            <button
+              onClick={closeModal}
+              className="mt-6 w-full text-white py-3 rounded-lg transition duration-300"
               style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "10px",
-                marginTop: "20px",
+                backgroundColor: "#E9D29C",
               }}
+              onMouseEnter={(e) => (e.target.style.backgroundColor = "#D4B882")}
+              onMouseLeave={(e) => (e.target.style.backgroundColor = "#E9D29C")}
             >
-              <button
-                onClick={() =>
-                  window.open(
-                    "https://wa.me/6282122870473?text=Halo%20kak!%20Aku%20Mau%20tukar%20hadiahku%20nih",
-                    "_blank"
-                  )
-                }
-                style={{
-                  padding: "12px 24px",
-                  backgroundColor: "#25D366",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  transition: "background-color 0.3s",
-                }}
-              >
-                Kirim ke WhatsApp
-              </button>
-              <button
-                onClick={closeModal}
-                style={{
-                  padding: "12px 24px",
-                  backgroundColor: isDarkMode ? "#444" : "#E9D29C",
-                  color: isDarkMode ? "#fff" : "#333",
-                  border: "none",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  transition: "background-color 0.3s",
-                }}
-              >
-                Tutup
-              </button>
-            </div>
+              OK
+            </button>
           </>
         )}
       </Modal>

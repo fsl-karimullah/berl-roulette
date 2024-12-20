@@ -1,15 +1,16 @@
-import { useState } from 'react'
-import './App.css'
-import Roulette from './pages/Roulette'
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import Roulette from "./pages/Roulette";
+import Form from "./pages/Form";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <Roulette />
-    </>
-  )
+    <Routes>
+      <Route path="/" element={<Form />} />
+      <Route path="/roulette" element={<Roulette />} />
+    </Routes>
+  );
 }
 
-export default App
+export default App;
