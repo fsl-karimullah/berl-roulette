@@ -6,7 +6,7 @@ import { BrowserRouter } from "react-router";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <BrowserRouter basename="/giveaway-rfh/">
+    <BrowserRouter basename="/affiliate-member/">
       <App />
     </BrowserRouter>
   </StrictMode>

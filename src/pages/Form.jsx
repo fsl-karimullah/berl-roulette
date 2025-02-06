@@ -1,96 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Modal from "react-modal";
 
-const checkLocationProximity = (latitude, longitude) => {
-
-  const DEBUG_MODE = false;
-
-
-  //-6.276741778376728, 106.74049479988457
-  const realLat = -6.276741778376728;
-  const realLong = 106.74049479988457;
- 
-  const fakeLat = -6.212442989550739;
-  const fakeLong = 106.68184214795939; 
-
-  const eventLat = DEBUG_MODE ? fakeLat : realLat;
-  const eventLong = DEBUG_MODE ? fakeLong : realLong;
-  const radius = 0.5;
-
-  const toRadians = (value) => (value * Math.PI) / 180;
-  const earthRadius = 6371;
-
-  const deltaLat = toRadians(latitude - eventLat);
-  const deltaLon = toRadians(longitude - eventLong);
-
-  const lat1 = toRadians(eventLat);
-  const lat2 = toRadians(latitude);
-
-  const a =
-    Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-    Math.sin(deltaLon / 2) *
-      Math.sin(deltaLon / 2) *
-      Math.cos(lat1) *
-      Math.cos(lat2);
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const distance = earthRadius * c;
-
-  return distance <= radius;
-};
-
 const Form = () => {
-  const [isFar, setIsFar] = useState(true);
-  const [canSubmit, setCanSubmit] = useState(false);
   const [formData, setFormData] = useState({ name: "", phone: "" });
   const [modal, setModal] = useState({ isOpen: false, title: "", message: "" });
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!navigator.geolocation) {
-      setModal({
-        isOpen: true,
-        title: "Error",
-        message: "Geolocation is not supported by your browser.",
-      });
-      return;
-    }
-
-    const locationWatcher = navigator.geolocation.watchPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        const isCloseEnough = checkLocationProximity(latitude, longitude);
-        setIsFar(!isCloseEnough);
-        setCanSubmit(isCloseEnough);
-      },
-      (error) => {
-        let errorMessage = "An unknown error occurred.";
-        if (error.code === error.PERMISSION_DENIED) {
-          errorMessage =
-            "Location access denied. Please enable location access.";
-        } else if (error.code === error.POSITION_UNAVAILABLE) {
-          errorMessage =
-            "Location unavailable. Ensure your device's GPS is enabled.";
-        } else if (error.code === error.TIMEOUT) {
-          errorMessage = "Location request timed out. Try again.";
-        }
-        setModal({ isOpen: true, title: "Perhatian", message: errorMessage });
-      },
-      {
-        enableHighAccuracy: false,
-        timeout: 20000,
-        maximumAge: 0,
-      }
-    );
-
-    return () => {
-      if (locationWatcher) {
-        navigator.geolocation.clearWatch(locationWatcher);
-      }
-    };
-  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -114,7 +30,7 @@ const Form = () => {
         setModal({ isOpen: true, title: "Success", message });
         setTimeout(() => navigate("/roulette"), 2000);
       } else if (!success && status === "phone ready") {
-        setModal({ isOpen: true, title: "Error", message });
+        setModal({ isOpen: true, title: "Error", message }); 
       } else if (!success && status === "validasi phone failed") {
         setModal({
           isOpen: true,
@@ -185,65 +101,53 @@ const Form = () => {
           />
           <h2 className="text-2xl font-bold text-gray-800">Lengkapi Data</h2>
           <p className="text-sm text-gray-600">
-            Untuk Mendapatkan Produk Gratis atau Voucher
+            Lengkapi Data Dibawah ini Untuk Join Affiliate Member
           </p>
         </div>
-        {isFar ? (
-         <div className="flex justify-center mt-5 mb-5">
-         <div className="bg-red-500 text-white px-6 py-3 rounded-full shadow-lg font-bold text-center">
-           Lokasi Anda terlalu jauh dari event. <br /> Mohon lebih dekat lagi 500 meter, atau Ke Booth Kami
-         </div>
-       </div>
-       
-        ) : (
-          <form className="px-6 py-6 space-y-6" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Nama Lengkap:
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition sm:text-sm"
-                placeholder="Nama lengkap Anda"
-              />
-            </div>
-            <div className="form-group">
-              <label
-                htmlFor="phone"
-                className="block text-sm font-medium text-gray-700"
-              >
-                No HP (WhatsApp):
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                required
-                className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition sm:text-sm"
-                placeholder="Nomor WhatsApp Anda"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={!canSubmit}
-              className={`w-full flex justify-center py-3 px-6 rounded-lg shadow-lg text-sm font-medium text-white transition duration-300 transform hover:scale-105 focus:outline-none ${
-                canSubmit ? "bg-yellow-500 hover:bg-yellow-600" : "bg-gray-400"
-              }`}
+        <form className="px-6 py-6 space-y-6" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
             >
-              Submit
-            </button>
-          </form>
-        )}
+              Nama Lengkap:
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              required
+              className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition sm:text-sm"
+              placeholder="Nama lengkap Anda"
+            />
+          </div>
+          <div className="form-group">
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium text-gray-700"
+            >
+              No HP (WhatsApp):
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              required
+              className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition sm:text-sm"
+              placeholder="Nomor WhatsApp Anda"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full flex justify-center py-3 px-6 rounded-lg shadow-lg text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600 transition duration-300 transform hover:scale-105 focus:outline-none"
+          >
+            Submit
+          </button>
+        </form>
         <div className="text-center py-4 bg-gray-100 text-sm text-gray-600">
           <p>Data Anda Aman dan Tidak Akan Dibagikan</p>
         </div>
