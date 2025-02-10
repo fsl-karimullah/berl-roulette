@@ -4,54 +4,6 @@ import Modal from "react-modal";
 import { useNavigate } from "react-router";
 import axios from "axios";
 
-const data = [
-  {
-    option: "Lip Stain 01",
-    style: { fontSize: 12, backgroundColor: "#ff0050", textColor: "#fff" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/CMK%20MARKETPLACE%202.jpg?raw=true",
-  },
-  {
-    option: "Lip Stain 03",
-    style: { fontSize: 10, backgroundColor: "#F4E3C5", textColor: "#fff" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/CMK%20MARKETPLACE%204.jpg?raw=true",
-  },
-  {
-    option: "Lip Matte 02",
-    style: { fontSize: 12, backgroundColor: "#ff0050", textColor: "#fff" },
-    img: "https://raw.githubusercontent.com/fsl-karimullah/my-img-source/refs/heads/main/LM02.webp",
-  },
-  {
-    option: "Lip Velvet 03",
-    style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#000" },
-    img: "https://raw.githubusercontent.com/fsl-karimullah/my-img-source/refs/heads/main/LV03.webp",
-  },
-  {
-    option: "Acne Spot",
-    style: { fontSize: 12, backgroundColor: "#ff0050", textColor: "#fff" },
-    img: "https://raw.githubusercontent.com/fsl-karimullah/my-img-source/refs/heads/main/AST.webp",
-  },
-  {
-    option: "FFC Natural Light",
-    style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#000" },
-    img: "https://raw.githubusercontent.com/fsl-karimullah/my-img-source/refs/heads/main/ffc.webp",
-  },
-  {
-    option: "Beauty Blender",
-    style: { fontSize: 12, backgroundColor: "#ff0050", textColor: "#fff" },
-    img: "https://raw.githubusercontent.com/fsl-karimullah/my-img-source/refs/heads/main/blb.webp",
-  },
-  {
-    option: "Acne Toner",
-    style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#fff" },
-    img: "https://raw.githubusercontent.com/fsl-karimullah/my-img-source/refs/heads/main/ATN.webp",
-  },
-  {
-    option: "Logam Mulia 1gr",
-    style: { fontSize: 12, backgroundColor: "#ff0050", textColor: "#fff" },
-    img: "https://raw.githubusercontent.com/fsl-karimullah/my-img-source/refs/heads/main/ATN.webp",
-  },
-];
-
 const getCurrentDateTime = () => {
   const now = new Date();
   return now.toLocaleString();
@@ -61,47 +13,36 @@ const generateRandomId = () => {
   return Math.floor(1000 + Math.random() * 9000);
 };
 
-const calculatePrize = () => {
-
-  const weightedOptions = [
-    { index: 0, weight: 12.50 },
-    { index: 1, weight: 12.50 },
-    { index: 2, weight: 12.50 },
-    { index: 3, weight: 12.50 },
-    { index: 4, weight: 20 },
-    { index: 5, weight: 5 },
-    { index: 6, weight: 10 },
-    { index: 7, weight: 15 },
-    { index: 8, weight: 0 },
-  ];
-
-  const totalWeight = weightedOptions.reduce(
-    (sum, option) => sum + option.weight,
-    0
-  );
-  const randomWeight = Math.random() * totalWeight;
-  console.log("Total Weight:", totalWeight, "Random Weight:", randomWeight);
-
-  let cumulativeWeight = 0;
-  for (const option of weightedOptions) {
-    cumulativeWeight += option.weight;
-    console.log(
-      `Option ${option.index} (weight ${option.weight}) - cumulativeWeight: ${cumulativeWeight}`
-    );
-    if (randomWeight <= cumulativeWeight) {
-      console.log("Selected Option:", option.index);
-      return option.index;
+/**
+ * Weighted selection for affiliate products (excluding Gold)
+ * based on available stock (qtysisa).
+ * @param {Array} products - Array of eligible product objects.
+ * @returns {number|null} - The index (in the eligible array) of the selected product, or null if none.
+ */
+const calculatePrizeFromAffiliate = (products) => {
+  if (products.length === 0) return null;
+  const totalWeight = products.reduce((sum, prod) => sum + prod.qtysisa, 0);
+  const randomValue = Math.random() * totalWeight;
+  let cumulative = 0;
+  for (let i = 0; i < products.length; i++) {
+    cumulative += products[i].qtysisa;
+    if (randomValue <= cumulative) {
+      return i;
     }
   }
-
-  console.log("Fallback Option: 0");
-  return 0;
+  return products.length - 1;
 };
 
 const Roulette = () => {
+  // State for affiliate products (fetched from API and combined with Gold)
+  const [affiliateProducts, setAffiliateProducts] = useState([]);
+  // State for the currently selected affiliate product (object)
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
   // Roulette states
   const [mustSpin, setMustSpin] = useState(false);
-  const [prizeNumber, setPrizeNumber] = useState(0);
+  // prizeIndex refers to the index in the visibleProducts array (for display in the Wheel).
+  const [prizeIndex, setPrizeIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [canSpin, setCanSpin] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -112,6 +53,8 @@ const Roulette = () => {
   const [isInputModalOpen, setIsInputModalOpen] = useState(true);
   const [noWa, setNoWa] = useState("");
   const [idTiktok, setIdTiktok] = useState("");
+  // State to hold the submitted TikTok ID (for display in the prize modal)
+  const [savedTiktok, setSavedTiktok] = useState("");
 
   // Toast notification state
   const [toastMessage, setToastMessage] = useState("");
@@ -119,30 +62,107 @@ const Roulette = () => {
 
   const navigate = useNavigate();
 
-  // Check dark mode preference
+  // Fetch affiliate products from API on mount, then combine with Gold item.
+  useEffect(() => {
+    axios
+      .get("https://ecommerce.berlmember.com/gettiktokaffiliate")
+      .then((response) => {
+        const apiProducts = response.data.data || [];
+        // Create a Gold item.
+        const goldItem = {
+          produk: "Logam Mulia 1gr",
+          qty: 10,
+          qtylimit: 10,
+          qtysisa: 10, // Set stock as needed; if you want it ineligible, you can set qtysisa to 0 here.
+          image:
+            "https://via.placeholder.com/150/FFD700/000000?text=Gold", // Example gold image
+        };
+        // Combine the API products with the Gold item.
+        setAffiliateProducts([...apiProducts, goldItem]);
+      })
+      .catch((error) => {
+        console.error("Error fetching affiliate products:", error);
+      });
+  }, []);
+
+  // Setup dark mode detection.
   useEffect(() => {
     const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
     setIsDarkMode(darkModeQuery.matches);
     darkModeQuery.addEventListener("change", (e) => setIsDarkMode(e.matches));
   }, []);
 
-  // Check if the user has already spun on this device
+  // Check if the user has already spun on this device and load stored TikTok ID.
   useEffect(() => {
     const hasSpun = localStorage.getItem("hasSpun");
     if (hasSpun) {
       setCanSpin(false);
     }
+    // Only load saved TikTok ID into savedTiktok (do not preload it into the input field).
+    const storedTiktok = localStorage.getItem("idTiktok");
+    if (storedTiktok) {
+      setSavedTiktok(storedTiktok);
+    }
   }, []);
+
+  // Build visible products: include all products with stock > 0.
+  // (For Gold, you might want to show it regardless of stock; adjust as needed.)
+  const visibleProducts = affiliateProducts.filter((prod) =>
+    prod.produk === "Logam Mulia 1gr" ? true : prod.qtysisa > 0
+  );
+
+  // Build eligible products: only products that are in stock and NOT the Gold item.
+  const eligibleProducts = affiliateProducts.filter(
+    (prod) => prod.produk !== "Logam Mulia 1gr" && prod.qtysisa > 0
+  );
+
+  // Build roulette data for the Wheel component using visibleProducts.
+  // For the Gold item, apply a gold background.
+  const rouletteData =
+    visibleProducts.length > 0
+      ? visibleProducts.map((prod) => ({
+          option: prod.produk,
+          style: {
+            fontSize: 12,
+            backgroundColor:
+              prod.produk === "Logam Mulia 1gr" ? "#FFD700" : "#ff0050",
+            textColor: prod.produk === "Logam Mulia 1gr" ? "#000" : "#fff",
+          },
+          img: prod.image || "https://via.placeholder.com/150",
+        }))
+      : [
+          {
+            option: "Stok Habis",
+            style: { fontSize: 12, backgroundColor: "#ccc", textColor: "#333" },
+            img: "https://via.placeholder.com/150",
+          },
+        ];
 
   const handleSpinClick = () => {
     if (!canSpin) return;
-
-    const prize = calculatePrize();
-    setPrizeNumber(prize);
+    if (eligibleProducts.length === 0) {
+      setToastMessage("Maaf, stok habis untuk semua produk yang dapat dimenangkan.");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2000);
+      return;
+    }
+    // Calculate prize index based on weighted selection of eligible products.
+    const selectedIndexEligible = calculatePrizeFromAffiliate(eligibleProducts);
+    if (selectedIndexEligible === null) {
+      setToastMessage("Maaf, tidak ada produk yang tersedia.");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2000);
+      return;
+    }
+    const chosenProduct = eligibleProducts[selectedIndexEligible];
+    // Find the index of the chosen product in the visibleProducts array.
+    const indexInVisible = visibleProducts.findIndex(
+      (prod) => prod.produk === chosenProduct.produk
+    );
+    setPrizeIndex(indexInVisible);
+    setSelectedProduct(chosenProduct);
     setMustSpin(true);
     setCanSpin(false);
-
-    // Set localStorage so that the user can only spin once per device
     localStorage.setItem("hasSpun", "true");
     localStorage.setItem("lastSpin", getCurrentDateTime());
   };
@@ -152,6 +172,27 @@ const Roulette = () => {
     setIsModalOpen(true);
     setCurrentDateTime(getCurrentDateTime());
     setRandomId(generateRandomId());
+
+    // Update the stock for the selected product via API call.
+    if (selectedProduct) {
+      axios
+        .get(
+          `https://ecommerce.berlmember.com/gettiktokaffiliatecount?code=${selectedProduct.produk}`
+        )
+        .then(() => {
+          // Decrement local stock for the selected product.
+          setAffiliateProducts((prevProducts) =>
+            prevProducts.map((prod) =>
+              prod.produk === selectedProduct.produk
+                ? { ...prod, qtysisa: prod.qtysisa - 1 }
+                : prod
+            )
+          );
+        })
+        .catch((error) => {
+          console.error("Error updating product count:", error);
+        });
+    }
   };
 
   const closeModalAndNavigate = () => {
@@ -159,30 +200,23 @@ const Roulette = () => {
     navigate("/invitation");
   };
 
-  const handleInputSubmit = async (e) => {
+  const handleInputSubmit = (e) => {
     e.preventDefault();
-    try {
-      const url = `https://ecommerce.berlmember.com/tiktokaffiliate?tiktokid=${encodeURIComponent(
-        idTiktok
-      )}&phone=${encodeURIComponent(noWa)}`;
-      await axios.get(url);
-      setToastMessage("Berhasil Memasukkan data");
-      setShowToast(true);
-      localStorage.setItem("idTiktok", idTiktok);
-      setTimeout(() => {
-        setShowToast(false);
-        setIsInputModalOpen(false);
-      }, 1000);
-    } catch (error) {
-      setToastMessage("Terjadi kesalahan. Silakan coba lagi.");
-      setShowToast(true);
-      setTimeout(() => {
-        setShowToast(false);
-      }, 2000);
-    }
+    // Save TikTok ID to localStorage and update savedTiktok.
+    localStorage.setItem("idTiktok", idTiktok);
+    setSavedTiktok(idTiktok);
+    setToastMessage("Berhasil Memasukkan data");
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+      setIsInputModalOpen(false);
+      // Clear input fields after submission.
+      setNoWa("");
+      setIdTiktok("");
+    }, 1000);
   };
 
-  // For testing: Reset the spin limit so the user can spin again
+  // For testing: Reset spin limit.
   const handleResetSpin = () => {
     localStorage.removeItem("hasSpun");
     setCanSpin(true);
@@ -235,13 +269,12 @@ const Roulette = () => {
     },
   };
 
-  // Toast style
   const toastStyle = {
     position: "fixed",
     bottom: "20px",
     left: "50%",
     transform: "translateX(-50%)",
-    backgroundColor: "#333",
+    backgroundColor: isDarkMode ? "#555" : "#333",
     color: "#fff",
     padding: "10px 20px",
     borderRadius: "5px",
@@ -251,17 +284,25 @@ const Roulette = () => {
     textAlign: "center",
   };
 
+  const containerStyle = {
+    width: "100vw",
+    height: "100vh",
+    backgroundImage: `url('https://github.com/fsl-karimullah/my-img-source/blob/main/background%20rolate%20(1).jpg?raw=true')`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+    filter: isDarkMode ? "brightness(0.8)" : "none",
+  };
+
   return (
-    <div
-      className="w-screen h-screen bg-cover bg-center bg-no-repeat flex flex-col justify-center items-center overflow-hidden"
-      style={{
-        backgroundImage: `url('https://github.com/fsl-karimullah/my-img-source/blob/main/background%20rolate%20(1).jpg?raw=true')`,
-      }}
-    >
-      {/* Toast Notification */}
+    <div style={containerStyle}>
       {showToast && <div style={toastStyle}>{toastMessage}</div>}
 
-      {/* Input Modal - Forces the user to enter TikTok ID and WhatsApp number */}
+      {/* Input Modal */}
       <Modal
         isOpen={isInputModalOpen}
         shouldCloseOnOverlayClick={false}
@@ -274,20 +315,21 @@ const Roulette = () => {
         <form onSubmit={handleInputSubmit}>
           <input
             type="text"
+            style={{ color: "black" }}
             value={noWa}
             onChange={(e) => setNoWa(e.target.value)}
             placeholder="Masukkan No WA"
-            className="border p-2 w-full mb-4 rounded text-black"
+            className="border p-2 w-full mb-4 rounded"
             required
             inputMode="numeric"
-
           />
           <input
             type="text"
             value={idTiktok}
             onChange={(e) => setIdTiktok(e.target.value)}
             placeholder="Masukkan ID Tiktok"
-            className="border p-2 w-full mb-4 rounded text-black"
+            style={{ color: "black" }}
+            className="border p-2 w-full mb-4 rounded"
             required
           />
           <button
@@ -332,14 +374,8 @@ const Roulette = () => {
       >
         <Wheel
           mustStartSpinning={mustSpin}
-          prizeNumber={prizeNumber}
-          data={data.map((item) => ({
-            ...item,
-            style: {
-              ...item.style,
-              textColor: isDarkMode ? "#fff" : "#333",
-            },
-          }))}
+          prizeNumber={prizeIndex}
+          data={rouletteData}
           backgroundColors={["#3e3e3e", "#df3428"]}
           textColors={["#ffffff"]}
           onStopSpinning={handleStopSpinning}
@@ -405,19 +441,19 @@ const Roulette = () => {
         className="bg-white rounded-lg shadow-lg p-8 max-w-md mx-auto z-50 relative"
         overlayClassName="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-40"
       >
-        {prizeNumber !== null && (
+        {selectedProduct && (
           <>
             <h2 className="text-2xl font-semibold text-center text-gray-800 mb-4">
-              🎉 Selamat! {idTiktok} Anda memenangkan{" "}
+              🎉 Selamat! {savedTiktok} Anda memenangkan{" "}
               <span style={{ color: "#E9D29C" }}>
-                {data[prizeNumber].option}
+                {selectedProduct.produk}
               </span>
               !
             </h2>
             <img
-              src={data[prizeNumber].img}
-              alt={data[prizeNumber].option}
-              className="w-40 h-auto mx-auto mb-4 object-contain"
+              src={selectedProduct.image || "https://via.placeholder.com/150"}
+              alt={selectedProduct.produk}
+              className="w-40 h-24 mx-auto mb-4 object-contain"
             />
             <p className="text-center text-gray-600 mb-2">
               Tanggal & Waktu:{" "}
@@ -426,12 +462,17 @@ const Roulette = () => {
             <p className="text-center text-gray-600">
               ID Hadiah: <strong className="text-indigo-600">{randomId}</strong>
             </p>
+            {/* <p className="text-center text-gray-600">
+              Sisa Stok:{" "}
+              <strong className="text-indigo-600">
+                {selectedProduct.qtysisa > 0 ? selectedProduct.qtysisa : 0}
+              </strong>
+            </p> */}
             <p className="text-center text-white bg-red-700 p-2 rounded-lg my-4">
-              Segera ambil hadiahmu di tempat yang telah ditentukan (Booth B erl
-              Cosmetics) Jangan Sampai Kehabisan!
+              Segera ambil hadiahmu di tempat yang telah ditentukan (Booth B erl Cosmetics) Jangan Sampai Kehabisan!
             </p>
             <p className="text-center text-white bg-black p-2 rounded-lg my-4">
-              <span className="text-yellow-400 font-bold">
+              <span className="text-yellow-400 font-bold"> 
                 Screenshot Informasi Ini
               </span>{" "}
               Dan Tunjukkan Kepada Petugas Booth B erl Cosmetics Pada{" "}
