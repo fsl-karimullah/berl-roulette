@@ -4,7 +4,8 @@ import axios from "axios";
 import Modal from "react-modal";
 
 const Form = () => {
-  const [formData, setFormData] = useState({ name: "", phone: "" });
+  // Change state keys from "name" to "tiktokid"
+  const [formData, setFormData] = useState({ tiktokid: "", phone: "" });
   const [modal, setModal] = useState({ isOpen: false, title: "", message: "" });
   const navigate = useNavigate();
 
@@ -16,10 +17,12 @@ const Form = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const token = "ahkepolu";
-    const { name, phone } = formData;
-    const url = `https://ecommerce.berlmember.com/runforhumanity?token=${token}&name=${encodeURIComponent(
-      name
+    // Destructure the TikTok ID and phone from formData
+    const { tiktokid, phone } = formData;
+
+    // New endpoint with the TikTok ID and phone number
+    const url = `https://ecommerce.berlmember.com/tiktokaffiliate?tiktokid=${encodeURIComponent(
+      tiktokid
     )}&phone=${encodeURIComponent(phone)}`;
 
     try {
@@ -30,7 +33,7 @@ const Form = () => {
         setModal({ isOpen: true, title: "Success", message });
         setTimeout(() => navigate("/roulette"), 2000);
       } else if (!success && status === "phone ready") {
-        setModal({ isOpen: true, title: "Error", message }); 
+        setModal({ isOpen: true, title: "Error", message });
       } else if (!success && status === "validasi phone failed") {
         setModal({
           isOpen: true,
@@ -60,7 +63,7 @@ const Form = () => {
   };
 
   return (
-    <div className="flex items-center justify-center ">
+    <div className="flex items-center justify-center">
       <Modal
         isOpen={modal.isOpen}
         onRequestClose={closeModal}
@@ -101,26 +104,26 @@ const Form = () => {
           />
           <h2 className="text-2xl font-bold text-gray-800">Lengkapi Data</h2>
           <p className="text-sm text-gray-600">
-            Lengkapi Data Dibawah ini Untuk Join Affiliate Member
+            Lengkapi data di bawah ini untuk join Affiliate Member
           </p>
         </div>
         <form className="px-6 py-6 space-y-6" onSubmit={handleSubmit}>
           <div className="form-group">
             <label
-              htmlFor="name"
+              htmlFor="tiktokid"
               className="block text-sm font-medium text-gray-700"
             >
-              Nama Lengkap:
+              TikTok ID:
             </label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="tiktokid"
+              name="tiktokid"
+              value={formData.tiktokid}
               onChange={handleInputChange}
               required
               className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition sm:text-sm"
-              placeholder="Nama lengkap Anda"
+              placeholder="Masukkan TikTok ID Anda"
             />
           </div>
           <div className="form-group">
@@ -138,7 +141,7 @@ const Form = () => {
               onChange={handleInputChange}
               required
               className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition sm:text-sm"
-              placeholder="Nomor WhatsApp Anda"
+              placeholder="Masukkan Nomor WhatsApp Anda"
             />
           </div>
           <button
