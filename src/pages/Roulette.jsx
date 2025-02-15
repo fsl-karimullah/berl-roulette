@@ -107,36 +107,45 @@ const Roulette = () => {
 
   // Build visible products: include all products with stock > 0.
   // (For Gold, you might want to show it regardless of stock; adjust as needed.)
-  const visibleProducts = affiliateProducts.filter((prod) =>
-    prod.produk === "Logam Mulia 1gr" ? true : prod.qtysisa > 0
-  );
+  // const visibleProducts = affiliateProducts.filter((prod) =>
+  //   prod.produk === "Logam Mulia 1gr" ? true : prod.qtysisa > 0
+  // );
+  const visibleProducts = affiliateProducts;
 
   // Build eligible products: only products that are in stock and NOT the Gold item.
   const eligibleProducts = affiliateProducts.filter(
     (prod) => prod.produk !== "Logam Mulia 1gr" && prod.qtysisa > 0
   );
 
+
   // Build roulette data for the Wheel component using visibleProducts.
   // For the Gold item, apply a gold background.
   const rouletteData =
-    visibleProducts.length > 0
-      ? visibleProducts.map((prod) => ({
-          option: prod.produk,
-          style: {
-            fontSize: 12,
-            backgroundColor:
-              prod.produk === "Logam Mulia 1gr" ? "#FFD700" : "#ff0050",
-            textColor: prod.produk === "Logam Mulia 1gr" ? "#000" : "#fff",
-          },
-          img: prod.image || "https://via.placeholder.com/150",
-        }))
-      : [
-          {
-            option: "Stok Habis",
-            style: { fontSize: 12, backgroundColor: "#ccc", textColor: "#333" },
-            img: "https://via.placeholder.com/150",
-          },
-        ];
+  visibleProducts.length > 0
+    ? visibleProducts.map((prod) => ({
+        option:
+          prod.qtysisa <= 0
+            ? `${prod.produk} (Stok Habis)`
+            : prod.produk,
+        style: {
+          fontSize: 12,
+          backgroundColor: prod.qtysisa <= 0
+            ? "#888888"
+            : prod.produk === "Logam Mulia 1gr"
+            ? "#FFD700"
+            : "#ff0050",
+          textColor:
+            prod.qtysisa <= 0 ? "#eee" : prod.produk === "Logam Mulia 1gr" ? "#000" : "#fff",
+        },
+        img: prod.image || "https://via.placeholder.com/150",
+      }))
+    : [
+        {
+          option: "Stok Habis",
+          style: { fontSize: 12, backgroundColor: "#ccc", textColor: "#333" },
+          img: "https://via.placeholder.com/150",
+        },
+      ];
 
   const handleSpinClick = () => {
     if (!canSpin) return;
@@ -146,7 +155,6 @@ const Roulette = () => {
       setTimeout(() => setShowToast(false), 2000);
       return;
     }
-    // Calculate prize index based on weighted selection of eligible products.
     const selectedIndexEligible = calculatePrizeFromAffiliate(eligibleProducts);
     if (selectedIndexEligible === null) {
       setToastMessage("Maaf, tidak ada produk yang tersedia.");
@@ -155,7 +163,6 @@ const Roulette = () => {
       return;
     }
     const chosenProduct = eligibleProducts[selectedIndexEligible];
-    // Find the index of the chosen product in the visibleProducts array.
     const indexInVisible = visibleProducts.findIndex(
       (prod) => prod.produk === chosenProduct.produk
     );
@@ -173,14 +180,12 @@ const Roulette = () => {
     setCurrentDateTime(getCurrentDateTime());
     setRandomId(generateRandomId());
 
-    // Update the stock for the selected product via API call.
     if (selectedProduct) {
       axios
         .get(
           `https://ecommerce.berlmember.com/gettiktokaffiliatecount?code=${selectedProduct.produk}`
         )
         .then(() => {
-          // Decrement local stock for the selected product.
           setAffiliateProducts((prevProducts) =>
             prevProducts.map((prod) =>
               prod.produk === selectedProduct.produk
@@ -200,23 +205,29 @@ const Roulette = () => {
     navigate("/invitation");
   };
 
-  const handleInputSubmit = (e) => {
+  const handleInputSubmit = async (e) => {
     e.preventDefault();
-    // Save TikTok ID to localStorage and update savedTiktok.
-    localStorage.setItem("idTiktok", idTiktok);
-    setSavedTiktok(idTiktok);
-    setToastMessage("Berhasil Memasukkan data");
-    setShowToast(true);
-    setTimeout(() => {
-      setShowToast(false);
-      setIsInputModalOpen(false);
-      // Clear input fields after submission.
-      setNoWa("");
-      setIdTiktok("");
-    }, 1000);
+    try {
+      const url = `https://ecommerce.berlmember.com/tiktokaffiliate?tiktokid=${encodeURIComponent(
+        idTiktok
+      )}&phone=${encodeURIComponent(noWa)}`;
+      await axios.get(url);
+      setToastMessage("Berhasil Memasukkan data");
+      setShowToast(true);
+      localStorage.setItem("idTiktok", idTiktok);
+      setTimeout(() => {
+        setShowToast(false);
+        setIsInputModalOpen(false);
+      }, 1000);
+    } catch (error) {
+      setToastMessage("Terjadi kesalahan. Silakan coba lagi.");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 2000);
+    }
   };
 
-  // For testing: Reset spin limit.
   const handleResetSpin = () => {
     localStorage.removeItem("hasSpun");
     setCanSpin(true);
@@ -417,7 +428,7 @@ const Roulette = () => {
       </button>
 
       {/* Reset Spin Button for Testing */}
-      <button
+      {/* <button
         onClick={handleResetSpin}
         style={{
           marginTop: 10,
@@ -431,7 +442,7 @@ const Roulette = () => {
         }}
       >
         Reset Spin (Testing)
-      </button>
+      </button> */}
 
       <Modal
         isOpen={isModalOpen}

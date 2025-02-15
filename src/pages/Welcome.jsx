@@ -16,9 +16,9 @@ const Welcome = () => {
           <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2">
             <Link
               to="/roulette"
-              className="inline-flex items-center justify-center px-6 py-3 text-lg font-medium text-white bg-[#e81155] rounded-lg hover:bg-pink-600 focus:ring-4 focus:ring-pink-300 transition-all"
+              className="inline-flex text-center items-center justify-center px-6 py-3 text-lg font-medium text-white bg-[#e81155] rounded-lg hover:bg-pink-600 focus:ring-4 focus:ring-pink-300 transition-all"
             >
-              Get Started
+              Ambil Hadiahnya!
             </Link>
           </div>
         </div>
