@@ -215,10 +215,13 @@ const Roulette = () => {
       setToastMessage("Berhasil Memasukkan data");
       setShowToast(true);
       localStorage.setItem("idTiktok", idTiktok);
+      setSavedTiktok(idTiktok);
       setTimeout(() => {
         setShowToast(false);
         setIsInputModalOpen(false);
       }, 1000);
+      setNoWa("");
+      setIdTiktok("");
     } catch (error) {
       setToastMessage("Terjadi kesalahan. Silakan coba lagi.");
       setShowToast(true);
@@ -227,6 +230,22 @@ const Roulette = () => {
       }, 2000);
     }
   };
+
+  // const handleInputSubmit = (e) => {
+  //   e.preventDefault();
+  //   // Save TikTok ID to localStorage and update savedTiktok.
+  //   localStorage.setItem("idTiktok", idTiktok);
+  //   setSavedTiktok(idTiktok);
+  //   setToastMessage("Berhasil Memasukkan data");
+  //   setShowToast(true);
+  //   setTimeout(() => {
+  //     setShowToast(false);
+  //     setIsInputModalOpen(false);
+  //     // Clear input fields after submission.
+  //     setNoWa("");
+  //     setIdTiktok("");
+  //   }, 1000);
+  // };
 
   const handleResetSpin = () => {
     localStorage.removeItem("hasSpun");
