@@ -11,7 +11,7 @@ const getCurrentDateTime = () => {
 
 const generateRandomId = () => {
   return Math.floor(1000 + Math.random() * 9000);
-};
+}; 
 
 /**
  * Weighted selection for affiliate products (excluding Gold)
@@ -34,14 +34,10 @@ const calculatePrizeFromAffiliate = (products) => {
 };
 
 const Roulette = () => {
-  // State for affiliate products (fetched from API and combined with Gold)
   const [affiliateProducts, setAffiliateProducts] = useState([]);
-  // State for the currently selected affiliate product (object)
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  // Roulette states
   const [mustSpin, setMustSpin] = useState(false);
-  // prizeIndex refers to the index in the visibleProducts array (for display in the Wheel).
   const [prizeIndex, setPrizeIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [canSpin, setCanSpin] = useState(true);
@@ -49,35 +45,29 @@ const Roulette = () => {
   const [currentDateTime, setCurrentDateTime] = useState(getCurrentDateTime());
   const [randomId, setRandomId] = useState(generateRandomId());
 
-  // Input modal state (for TikTok ID and WhatsApp number)
   const [isInputModalOpen, setIsInputModalOpen] = useState(true);
   const [noWa, setNoWa] = useState("");
   const [idTiktok, setIdTiktok] = useState("");
-  // State to hold the submitted TikTok ID (for display in the prize modal)
   const [savedTiktok, setSavedTiktok] = useState("");
 
-  // Toast notification state
   const [toastMessage, setToastMessage] = useState("");
   const [showToast, setShowToast] = useState(false);
 
   const navigate = useNavigate();
 
-  // Fetch affiliate products from API on mount, then combine with Gold item.
   useEffect(() => {
     axios
       .get("https://ecommerce.berlmember.com/gettiktokaffiliate")
       .then((response) => {
         const apiProducts = response.data.data || [];
-        // Create a Gold item.
         const goldItem = {
           produk: "Logam Mulia 1gr",
           qty: 10,
           qtylimit: 10,
-          qtysisa: 10, // Set stock as needed; if you want it ineligible, you can set qtysisa to 0 here.
+          qtysisa: 10, 
           image:
-            "https://via.placeholder.com/150/FFD700/000000?text=Gold", // Example gold image
+            "https://via.placeholder.com/150/FFD700/000000?text=Gold",
         };
-        // Combine the API products with the Gold item.
         setAffiliateProducts([...apiProducts, goldItem]);
       })
       .catch((error) => {
@@ -85,41 +75,30 @@ const Roulette = () => {
       });
   }, []);
 
-  // Setup dark mode detection.
   useEffect(() => {
     const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
     setIsDarkMode(darkModeQuery.matches);
     darkModeQuery.addEventListener("change", (e) => setIsDarkMode(e.matches));
   }, []);
 
-  // Check if the user has already spun on this device and load stored TikTok ID.
   useEffect(() => {
     const hasSpun = localStorage.getItem("hasSpun");
     if (hasSpun) {
       setCanSpin(false);
     }
-    // Only load saved TikTok ID into savedTiktok (do not preload it into the input field).
     const storedTiktok = localStorage.getItem("idTiktok");
     if (storedTiktok) {
       setSavedTiktok(storedTiktok);
     }
   }, []);
 
-  // Build visible products: include all products with stock > 0.
-  // (For Gold, you might want to show it regardless of stock; adjust as needed.)
-  // const visibleProducts = affiliateProducts.filter((prod) =>
-  //   prod.produk === "Logam Mulia 1gr" ? true : prod.qtysisa > 0
-  // );
   const visibleProducts = affiliateProducts;
 
-  // Build eligible products: only products that are in stock and NOT the Gold item.
   const eligibleProducts = affiliateProducts.filter(
     (prod) => prod.produk !== "Logam Mulia 1gr" && prod.qtysisa > 0
   );
 
 
-  // Build roulette data for the Wheel component using visibleProducts.
-  // For the Gold item, apply a gold background.
   const rouletteData =
   visibleProducts.length > 0
     ? visibleProducts.map((prod) => ({
@@ -144,7 +123,7 @@ const Roulette = () => {
           option: "Stok Habis",
           style: { fontSize: 12, backgroundColor: "#ccc", textColor: "#333" },
           img: "https://via.placeholder.com/150",
-        },
+        }, 
       ];
 
   const handleSpinClick = () => {
@@ -202,14 +181,14 @@ const Roulette = () => {
 
   const closeModalAndNavigate = () => {
     setIsModalOpen(false);
-    navigate("/invitation");
+    window.location.href = "https://wa.me/628782656459"; 
   };
-
+  
   const handleInputSubmit = async (e) => {
     e.preventDefault();
     try {
       const url = `https://ecommerce.berlmember.com/tiktokaffiliate?tiktokid=${encodeURIComponent(
-        idTiktok
+        idTiktok 
       )}&phone=${encodeURIComponent(noWa)}`;
       await axios.get(url);
       setToastMessage("Berhasil Memasukkan data");
@@ -222,7 +201,7 @@ const Roulette = () => {
       }, 1000);
       setNoWa("");
       setIdTiktok("");
-    } catch (error) {
+    } catch (error) { 
       setToastMessage("Terjadi kesalahan. Silakan coba lagi.");
       setShowToast(true);
       setTimeout(() => {
@@ -353,7 +332,7 @@ const Roulette = () => {
             required
             inputMode="numeric"
           />
-          <input
+          {/* <input
             type="text"
             value={idTiktok}
             onChange={(e) => setIdTiktok(e.target.value)}
@@ -361,7 +340,7 @@ const Roulette = () => {
             style={{ color: "black" }}
             className="border p-2 w-full mb-4 rounded"
             required
-          />
+          /> */}
           <button
             type="submit"
             className="w-full py-3 rounded-lg transition duration-300 font-bold"
@@ -474,7 +453,7 @@ const Roulette = () => {
         {selectedProduct && (
           <>
             <h2 className="text-2xl font-semibold text-center text-gray-800 mb-4">
-              🎉 Selamat! {savedTiktok} Anda memenangkan{" "}
+              🎉 Selamat! Anda memenangkan{" "}
               <span style={{ color: "#E9D29C" }}>
                 {selectedProduct.produk}
               </span>
@@ -517,7 +496,7 @@ const Roulette = () => {
               onMouseEnter={(e) => (e.target.style.backgroundColor = "#D4B882")}
               onMouseLeave={(e) => (e.target.style.backgroundColor = "#E9D29C")}
             >
-              OK
+              Kirim Bukti Ke Whatsapp
             </button>
           </>
         )}
