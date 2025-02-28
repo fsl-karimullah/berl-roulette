@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Wheel } from "react-custom-roulette";
 import Modal from "react-modal";
+import axios from "axios"; // Import axios
 
 const data = [
   {
@@ -91,7 +92,6 @@ const calculatePrize = () => {
       return option.index;
     }
   }
-
   return 0;
 };
 
@@ -121,12 +121,10 @@ const Roulette = () => {
 
   const handleSpinClick = () => {
     if (!canSpin) return;
-
     const prize = calculatePrize();
     setPrizeNumber(prize);
     setMustSpin(true);
     setCanSpin(false);
-
     localStorage.setItem("hasSpun", "true");
     localStorage.setItem("lastSpin", getCurrentDateTime());
   };
@@ -145,13 +143,34 @@ const Roulette = () => {
     setRandomId(generateRandomId());
   };
 
-  // Prize modal close function navigates to WhatsApp URL
   const closeModal = () => {
     setIsModalOpen(false);
     window.location.href = "https://wa.me/6282258569318";
   };
 
-  // Style for prize modal (dark/light)
+  const handleWhatsAppSubmit = () => {
+    axios
+    .post("https://crm.berlmember.com/api/saveleadscrmroulete", null, {
+        params: {
+          title: "Campaign KRL Batch 2 2025",
+          nohp: whatsAppNumber, 
+          source: "Event",
+          date: new Date().toLocaleString(), 
+          brand: "Berl",
+          status_leads: "Leads",  
+        },
+      })
+      .then((response) => {
+        console.log("Lead saved:", response.data);
+        setIsWhatsAppModalOpen(false);
+      })
+      .catch((error) => {
+        console.error("Error saving lead", error);
+        setIsWhatsAppModalOpen(false);
+      });
+  };
+  
+
   const modalStyle = {
     content: {
       top: "50%",
@@ -242,14 +261,14 @@ const Roulette = () => {
           <button
             className="w-full py-2 rounded-md mt-4 hover:transition-colors disabled:opacity-50"
             disabled={!whatsAppNumber.trim()}
-            onClick={() => setIsWhatsAppModalOpen(false)}
+            onClick={handleWhatsAppSubmit}
             style={{
               backgroundColor: isDarkMode ? "#d2ad67" : "#d2ad67",
               color: "#fff",
             }}
           >
             Putar
-          </button> 
+          </button>
         </div>
       </Modal>
 
@@ -303,7 +322,7 @@ const Roulette = () => {
             left: "50%",
             transform: "translate(-50%, -50%)",
             width: "50px",
-            height: "50px", 
+            height: "50px",
             pointerEvents: "none",
             zIndex: 1,
           }}
@@ -326,8 +345,8 @@ const Roulette = () => {
         {mustSpin
           ? "Spinning..."
           : canSpin
-            ? "Putar Sekarang!"
-            : "Sudah Diputar"}
+          ? "Putar Sekarang!"
+          : "Sudah Diputar"}
       </button>
 
       {/* Tester Button */}
