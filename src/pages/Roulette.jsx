@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Wheel } from "react-custom-roulette";
 import Modal from "react-modal";
-import axios from "axios"; // Import axios
+import axios from "axios";
+import { toast } from 'react-toastify';
 
 const data = [
   {
@@ -129,7 +130,6 @@ const Roulette = () => {
     localStorage.setItem("lastSpin", getCurrentDateTime());
   };
 
-  // Tester function to reset and trigger a spin
   const handleTestSpin = () => {
     localStorage.removeItem("hasSpun");
     setCanSpin(true);
@@ -150,26 +150,28 @@ const Roulette = () => {
 
   const handleWhatsAppSubmit = () => {
     axios
-    .post("https://crm.berlmember.com/api/saveleadscrmroulete", null, {
+      .post("https://crm.berlmember.com/api/saveleadscrmroulete", null, {
         params: {
           title: "Campaign KRL Batch 2 2025",
-          nohp: whatsAppNumber, 
+          nohp: whatsAppNumber,
           source: "Event",
-          date: new Date().toLocaleString(), 
+          date: new Date().toLocaleString(),
           brand: "Berl",
-          status_leads: "Leads",  
+          status_leads: "Leads",
         },
       })
       .then((response) => {
-        console.log("Lead saved:", response.data);
+        // console.log("Lead saved:", response.data);
+        toast.success("Data berhasil disimpan!");
         setIsWhatsAppModalOpen(false);
       })
       .catch((error) => {
         console.error("Error saving lead", error);
+        toast.error("Data gagal disimpan!");
         setIsWhatsAppModalOpen(false);
       });
   };
-  
+
 
   const modalStyle = {
     content: {
@@ -183,8 +185,14 @@ const Roulette = () => {
       borderRadius: "15px",
       maxWidth: "90%",
       width: "400px",
-      backgroundColor: isDarkMode ? "#333" : "#fff",
-      color: isDarkMode ? "#fff" : "#333",
+      // Use a very dark background for dark mode, white for light mode
+      backgroundColor: isDarkMode ? "#121212" : "#fff",
+      // Text color white in dark mode, black in light mode
+      color: isDarkMode ? "#fff" : "#000",
+      border: "none",
+      boxShadow: isDarkMode
+        ? "0 0 10px rgba(255, 255, 255, 0.1)"
+        : "0 0 10px rgba(0, 0, 0, 0.1)",
       zIndex: 1000,
     },
     overlay: {
@@ -193,7 +201,6 @@ const Roulette = () => {
     },
   };
 
-  // Style for WhatsApp modal (dark/light)
   const whatsAppModalStyle = {
     content: {
       top: "50%",
@@ -206,8 +213,12 @@ const Roulette = () => {
       borderRadius: "15px",
       maxWidth: "90%",
       width: "400px",
-      backgroundColor: isDarkMode ? "#333" : "#fff",
-      color: isDarkMode ? "#fff" : "#333",
+      backgroundColor: isDarkMode ? "#121212" : "#fff",
+      color: isDarkMode ? "#fff" : "#000",
+      border: "none",
+      boxShadow: isDarkMode
+        ? "0 0 10px rgba(255, 255, 255, 0.1)"
+        : "0 0 10px rgba(0, 0, 0, 0.1)",
       zIndex: 1100,
     },
     overlay: {
@@ -345,8 +356,8 @@ const Roulette = () => {
         {mustSpin
           ? "Spinning..."
           : canSpin
-          ? "Putar Sekarang!"
-          : "Sudah Diputar"}
+            ? "Putar Sekarang!"
+            : "Sudah Diputar"}
       </button>
 
       {/* Tester Button */}
@@ -370,12 +381,12 @@ const Roulette = () => {
         onRequestClose={closeModal}
         contentLabel="Prize Modal"
         ariaHideApp={false}
-        className="bg-white rounded-lg shadow-lg p-8 max-w-md mx-auto z-50 relative"
-        overlayClassName="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-40"
+        style={modalStyle}
+        overlayClassName="fixed inset-0 flex justify-center items-center"
       >
         {prizeNumber !== null && (
-          <>
-            <h2 className="text-2xl font-semibold text-center mb-4" style={{ color: isDarkMode ? "#fff" : "#333" }}>
+          <div>
+            <h2 className="text-2xl font-semibold text-center mb-4">
               🎉 Selamat! Anda memenangkan{" "}
               <span style={{ color: "#E9D29C" }}>
                 {data[prizeNumber].option}
@@ -387,10 +398,10 @@ const Roulette = () => {
               alt={data[prizeNumber].option}
               className="w-40 h-24 mx-auto mb-4"
             />
-            <p className="text-center mb-2" style={{ color: isDarkMode ? "#ccc" : "#555" }}>
+            <p className="text-center mb-2">
               Tanggal & Waktu: <span className="font-medium">{currentDateTime}</span>
             </p>
-            <p className="text-center" style={{ color: isDarkMode ? "#ccc" : "#555" }}>
+            <p className="text-center">
               ID Hadiah: <strong className="text-indigo-600">{randomId}</strong>
             </p>
             <p className="text-center text-white bg-red-700 p-2 rounded-lg my-4">
@@ -408,18 +419,20 @@ const Roulette = () => {
               className="mt-6 w-full py-3 rounded-lg transition duration-300"
               style={{
                 backgroundColor: "#E9D29C",
-                color: isDarkMode ? "#fff" : "#333",
+                color: isDarkMode ? "#fff" : "#000",
               }}
               onMouseEnter={(e) => (e.target.style.backgroundColor = "#D4B882")}
               onMouseLeave={(e) => (e.target.style.backgroundColor = "#E9D29C")}
             >
-              OK, Kirim ke WhatsApp
+              OK, Kirim ke WhatsApp 
             </button>
-          </>
+          </div>
         )}
       </Modal>
+
+
     </div>
-  );
+  ); 
 };
 
 export default Roulette;
