@@ -37,14 +37,14 @@ const data = [
   },
   {
     option: "B Erl Intense Lightening Series",
-    style: { fontSize: 8, backgroundColor: "#F4E3C5", textColor: "#000" },
+    style: { fontSize: 8, backgroundColor: "#F4E3C5", textColor: "#000" }, 
     img: "https://berlcosmetics.com/wp-content/uploads/2024/01/LSP.jpg",
   },
   {
     option: "B Erl La Belle Colorstay Lip Velvet",
     style: { fontSize: 8, backgroundColor: "#E8ACAC", textColor: "#000" },
     img: "https://raw.githubusercontent.com/fsl-karimullah/my-img-source/refs/heads/main/LV03.webp",
-  },
+  }, 
   {
     option: "Logam Mulia",
     style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#000" },

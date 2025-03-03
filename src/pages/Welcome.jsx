@@ -1,28 +1,52 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const Welcome = () => {
+  const [isPlaying, setIsPlaying] = useState(false);
+
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://www.tiktok.com/embed.js";
-    script.async = true;
-    document.body.appendChild(script);
-    return () => {
-      document.body.removeChild(script);
-    };
+    // Auto-play simulation: Load Instagram Reel after 3 seconds
+    const timer = setTimeout(() => {
+      setIsPlaying(true);
+    }, 3000); // Change 3000 to adjust the delay (3 seconds)
+
+    return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (isPlaying) {
+      const script = document.createElement("script");
+      script.src = "https://www.instagram.com/embed.js";
+      script.async = true;
+      document.body.appendChild(script);
+
+      return () => {
+        document.body.removeChild(script);
+      };
+    }
+  }, [isPlaying]);
 
   return (
     <>
-      <div className="w-screen flex justify-center py-4">
-        <blockquote
-          className="tiktok-embed"
-          cite="https://www.tiktok.com/embed/7369175067697155333"
-          data-video-id="7369175067697155333"
-          style={{ maxWidth: "605px", minWidth: "325px" }} 
-        >
-          <section></section>
-        </blockquote>
+      <div className="w-screen flex justify-center py-4 relative">
+        {/* Auto-load Instagram Reel after delay */}
+        {isPlaying ? (
+          <blockquote
+            className="instagram-media"
+            data-instgrm-permalink="https://www.instagram.com/reel/DGu1yUsvaEW/"
+            data-instgrm-version="14"
+            style={{ maxWidth: "605px", minWidth: "325px" }}
+          ></blockquote>
+        ) : (
+          /* Show thumbnail before Instagram Reel loads */
+          <div className="relative w-[605px] h-[720px] bg-gray-200 flex items-center justify-center">
+            <img
+              src="https://via.placeholder.com/605x720.png?text=Instagram+Reel+Thumbnail"
+              alt="Instagram Reel"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
       </div>
 
       <div className="w-screen h-screen relative">
