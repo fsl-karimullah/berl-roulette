@@ -37,14 +37,14 @@ const data = [
   },
   {
     option: "B Erl Intense Lightening Series",
-    style: { fontSize: 8, backgroundColor: "#F4E3C5", textColor: "#000" }, 
+    style: { fontSize: 8, backgroundColor: "#F4E3C5", textColor: "#000" },
     img: "https://berlcosmetics.com/wp-content/uploads/2024/01/LSP.jpg",
   },
   {
     option: "B Erl La Belle Colorstay Lip Velvet",
     style: { fontSize: 8, backgroundColor: "#E8ACAC", textColor: "#000" },
     img: "https://raw.githubusercontent.com/fsl-karimullah/my-img-source/refs/heads/main/LV03.webp",
-  }, 
+  },
   {
     option: "Logam Mulia",
     style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#000" },
@@ -145,7 +145,9 @@ const Roulette = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    window.location.href = "https://wa.me/6282258569318";
+    const message = "Halo Ka, Aku mau Claim Hadiah ka, ini Bukti screenshot nya ya ka";
+    window.location.href = `https://wa.me/6282258569318?text=${encodeURIComponent(message)}`;
+
   };
 
   const handleWhatsAppSubmit = () => {
@@ -424,7 +426,7 @@ const Roulette = () => {
               onMouseEnter={(e) => (e.target.style.backgroundColor = "#D4B882")}
               onMouseLeave={(e) => (e.target.style.backgroundColor = "#E9D29C")}
             >
-              OK, Kirim ke WhatsApp 
+              OK, Kirim ke WhatsApp
             </button>
           </div>
         )}
@@ -432,7 +434,7 @@ const Roulette = () => {
 
 
     </div>
-  ); 
+  );
 };
 
 export default Roulette;
