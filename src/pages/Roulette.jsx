@@ -113,12 +113,21 @@ const Roulette = () => {
     const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
     setIsDarkMode(darkModeQuery.matches);
     darkModeQuery.addEventListener("change", (e) => setIsDarkMode(e.matches));
-
-    const hasSpun = localStorage.getItem("hasSpun");
-    if (hasSpun) {
-      setCanSpin(false);
+  
+    const lastSpin = localStorage.getItem("lastSpin");
+    if (lastSpin) {
+      const lastSpinTime = new Date(lastSpin).getTime();
+      const now = Date.now();
+      if (now - lastSpinTime >= 24 * 60 * 60 * 1000) {
+        setCanSpin(true);
+      } else {
+        setCanSpin(false);
+      }
+    } else {
+      setCanSpin(true);
     }
   }, []);
+  
 
   const handleSpinClick = () => {
     if (!canSpin) return;
@@ -126,15 +135,17 @@ const Roulette = () => {
     setPrizeNumber(prize);
     setMustSpin(true);
     setCanSpin(false);
-    localStorage.setItem("hasSpun", "true");
-    localStorage.setItem("lastSpin", getCurrentDateTime());
+    // Store the current time as an ISO string
+    localStorage.setItem("lastSpin", new Date().toISOString());
   };
+  
 
   const handleTestSpin = () => {
-    localStorage.removeItem("hasSpun");
+    localStorage.removeItem("lastSpin");
     setCanSpin(true);
     handleSpinClick();
   };
+  
 
   const handleStopSpinning = () => {
     setMustSpin(false);
@@ -152,7 +163,7 @@ const Roulette = () => {
 
   const handleWhatsAppSubmit = () => {
     axios
-      .post("https://crm.berlmember.com/api/saveleadscrmroulete", null, {
+      .post("https://crm.berlstore.com/api/saveleadscrmroulete", null, {
         params: {
           title: "Campaign KRL Batch 2 2025",
           nohp: whatsAppNumber,
@@ -359,7 +370,7 @@ const Roulette = () => {
           ? "Spinning..."
           : canSpin
             ? "Putar Sekarang!"
-            : "Sudah Diputar"}
+            : "Sudah Diputar, Kembali Lagi Besok!"}
       </button>
 
       {/* Tester Button */}
@@ -380,7 +391,7 @@ const Roulette = () => {
 
       <Modal
         isOpen={isModalOpen}
-        onRequestClose={closeModal}
+        onRequestClose={closeModal} 
         contentLabel="Prize Modal"
         ariaHideApp={false}
         style={modalStyle}
