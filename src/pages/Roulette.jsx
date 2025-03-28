@@ -4,6 +4,8 @@ import Modal from "react-modal";
 import axios from "axios";
 import { toast } from 'react-toastify';
 
+ 
+
 const data = [
   {
     option: "Acne Toner",
@@ -66,44 +68,56 @@ const generateRandomId = () => {
   return Math.floor(1000 + Math.random() * 9000);
 };
 
-const calculatePrize = () => {
-  const weightedOptions = [
-    { index: 0, weight: 1 },
-    { index: 1, weight: 0.5 },
-    { index: 2, weight: 1 },
-    { index: 3, weight: 1 },
-    { index: 4, weight: 0 },
-    { index: 5, weight: 0.5 },
-    { index: 6, weight: 0 },
-    { index: 7, weight: 1 },
-    { index: 8, weight: 0 },
-    { index: 9, weight: 95 },
-  ];
-
-  const totalWeight = weightedOptions.reduce(
-    (sum, option) => sum + option.weight,
-    0
-  );
-  const randomWeight = Math.random() * totalWeight;
-
-  let cumulativeWeight = 0;
-  for (const option of weightedOptions) {
-    cumulativeWeight += option.weight;
-    if (randomWeight <= cumulativeWeight) {
-      return option.index;
-    }
-  }
-  return 0;
-};
 
 const Roulette = () => {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
-  const [isModalOpen, setIsModalOpen] = useState(false); // Prize modal
+  const [isModalOpen, setIsModalOpen] = useState(false); 
   const [canSpin, setCanSpin] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentDateTime, setCurrentDateTime] = useState(getCurrentDateTime());
   const [randomId, setRandomId] = useState(generateRandomId());
+  let acneTonerStock = localStorage.getItem("acneTonerStock")
+    ? parseInt(localStorage.getItem("acneTonerStock"), 10)
+    : 50;
+
+
+    const resetAcneTonerStock = () => {
+      localStorage.setItem("acneTonerStock", 50);
+      window.location.reload(); 
+    };
+
+  const calculatePrize = () => {
+    const weightedOptions = [
+      { index: 0, weight: acneTonerStock > 0 ? 30 : 0 },
+      { index: 1, weight: 0.5 }, 
+      { index: 2, weight: 1 },
+      { index: 3, weight: 1 },
+      { index: 4, weight: 0 },
+      { index: 5, weight: 0.5 },
+      { index: 6, weight: 0 },
+      { index: 7, weight: 1 }, 
+      { index: 8, weight: 0 }, 
+      { index: 9, weight: 95 },
+    ];
+
+    const totalWeight = weightedOptions.reduce(
+      (sum, option) => sum + option.weight,
+      0
+    );
+    const randomWeight = Math.random() * totalWeight;
+
+    let cumulativeWeight = 0;
+    for (const option of weightedOptions) {
+      cumulativeWeight += option.weight;
+      if (randomWeight <= cumulativeWeight) {
+        return option.index;
+      }
+    }
+    return 0;
+  };
+
+
 
   // New state for WhatsApp modal
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(true);
@@ -113,7 +127,7 @@ const Roulette = () => {
     const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
     setIsDarkMode(darkModeQuery.matches);
     darkModeQuery.addEventListener("change", (e) => setIsDarkMode(e.matches));
-  
+
     const lastSpin = localStorage.getItem("lastSpin");
     if (lastSpin) {
       const lastSpinTime = new Date(lastSpin).getTime();
@@ -127,7 +141,7 @@ const Roulette = () => {
       setCanSpin(true);
     }
   }, []);
-  
+
 
   const handleSpinClick = () => {
     if (!canSpin) return;
@@ -138,21 +152,30 @@ const Roulette = () => {
     // Store the current time as an ISO string
     localStorage.setItem("lastSpin", new Date().toISOString());
   };
-  
+
 
   const handleTestSpin = () => {
     localStorage.removeItem("lastSpin");
     setCanSpin(true);
     handleSpinClick();
   };
-  
+
 
   const handleStopSpinning = () => {
     setMustSpin(false);
     setIsModalOpen(true);
     setCurrentDateTime(getCurrentDateTime());
     setRandomId(generateRandomId());
+
+    if (prizeNumber === 0) {
+      acneTonerStock = Math.max(0, acneTonerStock - 1);
+      localStorage.setItem("acneTonerStock", acneTonerStock);
+    }
   };
+
+
+
+
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -240,6 +263,15 @@ const Roulette = () => {
     },
   };
 
+  const rouletteData = data.map((item, index) => ({
+    ...item,
+    style: {
+      ...item.style,
+      backgroundColor: index === 0 && acneTonerStock === 0 ? "red" : item.style.backgroundColor,
+    },
+  }));
+
+
   return (
     <div
       style={{
@@ -326,17 +358,20 @@ const Roulette = () => {
         <Wheel
           mustStartSpinning={mustSpin}
           prizeNumber={prizeNumber}
-          data={data.map((item) => ({
+          data={data.map((item, index) => ({
             ...item,
             style: {
               ...item.style,
-              textColor: isDarkMode ? "#000" : "#000",
+              backgroundColor: index === 0 && acneTonerStock === 0 ? "red" : item.style.backgroundColor,
             },
           }))}
           backgroundColors={["#3e3e3e", "#df3428"]}
           textColors={["#ffffff"]}
           onStopSpinning={handleStopSpinning}
         />
+
+
+
         <img
           src="logo.png"
           alt="Center Logo"
@@ -380,18 +415,21 @@ const Roulette = () => {
           marginTop: 10,
           padding: "10px 20px",
           fontSize: 20,
-          cursor: "pointer",
+          cursor: "pointer", 
           backgroundColor: isDarkMode ? "#444" : "#6c63ff",
           color: "#fff",
           fontWeight: "bold",
-        }}
+        }} 
       >
         Test Spin
-      </button> */}
+      </button>
+
+      <button onClick={resetAcneTonerStock}>Reset Acne Toner Stock</button> */}
+ 
 
       <Modal
         isOpen={isModalOpen}
-        onRequestClose={closeModal} 
+        onRequestClose={closeModal}
         contentLabel="Prize Modal"
         ariaHideApp={false}
         style={modalStyle}
