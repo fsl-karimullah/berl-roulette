@@ -108,6 +108,7 @@ const Roulette = () => {
   // New state for WhatsApp modal
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(true);
   const [whatsAppNumber, setWhatsAppNumber] = useState("");
+  const [name, setName] = useState()
 
   useEffect(() => {
     const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -185,9 +186,7 @@ const Roulette = () => {
       borderRadius: "15px",
       maxWidth: "90%",
       width: "400px",
-      // Use a very dark background for dark mode, white for light mode
       backgroundColor: isDarkMode ? "#121212" : "#fff",
-      // Text color white in dark mode, black in light mode
       color: isDarkMode ? "#fff" : "#000",
       border: "none",
       boxShadow: isDarkMode
@@ -255,7 +254,20 @@ const Roulette = () => {
           <h2 className="text-2xl font-bold mb-4">Masukkan Nomor WhatsApp Anda</h2>
           <p className="mb-4" style={{ color: isDarkMode ? "#ccc" : "#555" }}>
             Silakan masukkan nomor WhatsApp untuk melanjutkan.
-          </p>
+          </p> 
+          <input
+            type="text"
+            value={whatsAppNumber}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Nama Lengkap"
+            className="w-full px-4 py-2 my-3 rounded-md focus:outline-none focus:ring-2"
+            style={{
+              backgroundColor: isDarkMode ? "#444" : "#fff",
+              border: "1px solid",
+              borderColor: isDarkMode ? "#666" : "#ccc",
+              color: isDarkMode ? "#fff" : "#333",
+            }}
+          />
           <input
             type="text"
             value={whatsAppNumber}
@@ -424,7 +436,7 @@ const Roulette = () => {
               onMouseEnter={(e) => (e.target.style.backgroundColor = "#D4B882")}
               onMouseLeave={(e) => (e.target.style.backgroundColor = "#E9D29C")}
             >
-              OK, Kirim ke WhatsApp 
+              OK, Kirim ke WhatsApp
             </button>
           </div>
         )}
@@ -432,7 +444,7 @@ const Roulette = () => {
 
 
     </div>
-  ); 
+  );
 };
 
 export default Roulette;
