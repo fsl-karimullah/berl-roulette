@@ -16,7 +16,10 @@ const generateRandomId = () => {
 };
 
 const calculatePrize = (weightedOptions) => {
-  const totalWeight = weightedOptions.reduce((sum, option) => sum + option.weight, 0);
+  const totalWeight = weightedOptions.reduce(
+    (sum, option) => sum + option.weight,
+    0
+  );
   const randomWeight = Math.random() * totalWeight;
 
   let cumulativeWeight = 0;
@@ -30,7 +33,6 @@ const calculatePrize = (weightedOptions) => {
 };
 
 const Roulette = () => {
-
   const [data, setData] = useState([]);
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
@@ -44,12 +46,11 @@ const Roulette = () => {
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(true);
   const [whatsAppNumber, setWhatsAppNumber] = useState("");
   const [name, setName] = useState("");
-  const [isFirstSpin, setisFirstSpin] = useState()
-
+  const [isFirstSpin, setisFirstSpin] = useState();
+  const [refreshRoulette, setrefreshRoulette] = useState(false);
 
   const handleSubmit = () => {
     submitVote();
-
   };
 
   const submitVote = async () => {
@@ -79,8 +80,10 @@ const Roulette = () => {
       if (response.data?.status === "success") {
         setIsWhatsAppModalOpen(false);
         toast.success("Vote berhasil dikirim.");
-        console.log('ASDASDASD', response.data?.participant?.is_roulette);
-        setCanSpin(response.data?.participant?.is_roulette == 0 ? true : false);
+        console.log("ASDASDASD", response.data?.participant?.is_roulette);
+        setCanSpin(
+          response.data?.participant?.is_roulette === 0 ? true : false
+        );
       } else {
         toast.error("Gagal mengirim vote.");
       }
@@ -95,9 +98,7 @@ const Roulette = () => {
     }
   };
 
-
   useEffect(() => {
-
     const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
     setIsDarkMode(darkModeQuery.matches);
     darkModeQuery.addEventListener("change", (e) => setIsDarkMode(e.matches));
@@ -106,16 +107,12 @@ const Roulette = () => {
     if (hasSpun) {
       setCanSpin(false);
     }
-
-
-
-
     const fetchRouletteData = async () => {
       try {
         const res = await axios.get(endpoint.getPollingRoulette(slug), {
           headers: {
             "Content-Type": "application/json",
-            "Accept": "application/json",
+            Accept: "application/json",
           },
         });
         // console.log("Fetched roulette data:", res.data);
@@ -135,6 +132,7 @@ const Roulette = () => {
                   : res.data.data.text_color_2 || "#ffffff",
             },
             img: opt.image || undefined,
+            id: opt.id,
           }));
           setData(options);
         } else {
@@ -146,22 +144,23 @@ const Roulette = () => {
       }
     };
 
-    if (slug) {
+    if (slug || refreshRoulette) {
       fetchRouletteData();
     }
-  }, [slug]);
- 
+  }, [slug, refreshRoulette]);
+
   const handleSpinClick = () => {
-    if (canSpin) return;
+    if (!canSpin) return;
 
     const weightedOptions = data.map((item, index) => ({
       index,
-      weight: item.weight || 1, 
+      weight: item.weight || 1,
     }));
 
     const prize = calculatePrize(weightedOptions);
 
     setPrizeNumber(prize);
+    // console.log("Prize number selected:", prize);
     setMustSpin(true);
     setCanSpin(false);
     localStorage.setItem("hasSpun", "true");
@@ -185,20 +184,55 @@ const Roulette = () => {
     setIsModalOpen(false);
   };
 
+  const handleClaimPrize = async (id) => {
+    console.log("Claiming prize for ID:", id);
+
+    try {
+      const payload = {
+        roulette_option_id: id,
+        full_name: name,
+        phone_number: whatsAppNumber,
+        polling_id,
+      };
+      console.log("Payload for claim prize:", payload);
+
+      const url = endpoint.saveClaimPrize(slug);
+      const response = await axios.post(url, payload, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
+
+      // console.log("Vote submission response:", response.data);
+      toast.success("Hadiah berhasil diklaim.");
+    } catch (error) {
+      // console.log("Vote submission error:", error);
+      if (error.status == 400) {
+        toast.error(error.response.data.message);
+        setrefreshRoulette(true);
+        closeModal();
+      }
+      console.error("Vote submission error:", error.response.data.message);
+      toast.error(error.message);
+    }
+  };
 
   const safeData =
     data.length > 0
       ? data
       : [
-        {
-          option: "Loading...",
-          style: { backgroundColor: "#ccc", textColor: "#000" }, 
-        },
-      ];
+          {
+            option: "Loading...",
+            style: { backgroundColor: "#ccc", textColor: "#000" },
+          },
+        ];
 
   const backgroundColors = [
     safeData[0]?.style.backgroundColor || "#ffffff",
-    safeData[1]?.style.backgroundColor || safeData[0]?.style.backgroundColor || "#000000",
+    safeData[1]?.style.backgroundColor ||
+      safeData[0]?.style.backgroundColor ||
+      "#000000",
   ];
 
   const textColors = [
@@ -213,7 +247,7 @@ const Roulette = () => {
       right: "auto",
       bottom: "auto",
       transform: "translate(-50%, -50%)",
-      textAlign: "center", 
+      textAlign: "center",
       padding: "20px",
       borderRadius: "15px",
       maxWidth: "90%",
@@ -288,8 +322,13 @@ const Roulette = () => {
             color: isDarkMode ? "#f5f5f5" : "#222",
           }}
         >
-          <h2 className="text-2xl font-bold mb-3 text-center">Masukkan Nama & Nomor WhatsApp Anda</h2>
-          <p className="mb-6 text-sm text-center" style={{ color: isDarkMode ? "#aaa" : "#666" }}>
+          <h2 className="text-2xl font-bold mb-3 text-center">
+            Masukkan Nama & Nomor WhatsApp Anda
+          </h2>
+          <p
+            className="mb-6 text-sm text-center"
+            style={{ color: isDarkMode ? "#aaa" : "#666" }}
+          >
             Silakan masukkan nama & nomor WhatsApp untuk melanjutkan.
           </p>
 
@@ -351,10 +390,10 @@ const Roulette = () => {
       <div className="flex space-x-4 mt-6">
         <button
           className="bg-[#d2ad67] px-6 py-3 rounded-md font-semibold text-white disabled:opacity-50"
-          disabled={canSpin}
+          disabled={!canSpin}
           onClick={handleSpinClick}
         >
-          {canSpin ? "Putar Roda" : "Sudah Diputar"}
+          {!canSpin ? "Putar Roda" : "Sudah Diputar"}
         </button>
       </div>
 
@@ -367,7 +406,7 @@ const Roulette = () => {
         style={modalStyle}
         overlayClassName="fixed inset-0 flex justify-center items-center"
       >
-        {prizeNumber !== null && (
+        {prizeNumber !== null && data && data[prizeNumber] && (
           <div>
             <h2 className="text-2xl font-semibold text-center mb-4">
               🎉 Selamat! Anda memenangkan{" "}
@@ -382,7 +421,8 @@ const Roulette = () => {
               className="w-40 h-24 mx-auto mb-4"
             />
             <p className="text-center mb-2">
-              Tanggal & Waktu: <span className="font-medium">{currentDateTime}</span>
+              Tanggal & Waktu:{" "}
+              <span className="font-medium">{currentDateTime}</span>
             </p>
             <p className="text-center">
               ID Hadiah: <strong className="text-indigo-600">{randomId}</strong>
@@ -395,10 +435,12 @@ const Roulette = () => {
                 Screenshot Informasi Ini
               </span>{" "}
               Untuk Mengambil Hadiah Anda dan Kirim Ke{" "}
-              <span className="text-yellow-300 font-bold">WhatsApp Dibawah</span>
+              <span className="text-yellow-300 font-bold">
+                WhatsApp Dibawah
+              </span>
             </p>
             <button
-              onClick={() => setIsModalOpen(false)}
+              onClick={() => handleClaimPrize(data[prizeNumber].id)}
               className="mt-6 w-full py-3 rounded-lg transition duration-300"
               style={{
                 backgroundColor: "#E9D29C",
@@ -412,7 +454,6 @@ const Roulette = () => {
           </div>
         )}
       </Modal>
-
     </div>
   );
 };
