@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { endpoint } from "../api/endpoint";
 
-const IMAGE_BASE_URL = "http://192.168.68.194:8000/storage/";
+const IMAGE_BASE_URL = "http://192.168.68.239:8000/storage/";
 
 const LandingPage = () => {
   const [polling, setPolling] = useState(null);
@@ -12,7 +12,12 @@ const LandingPage = () => {
 
   useEffect(() => {
     axios
-      .get(endpoint.getPollingData)
+      .get(endpoint.getPollingData, {
+        headers:{
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        }
+      })
       .then((response) => {
         if (response.data.status === "success" && response.data.data.length > 0) {
           setPolling(response.data.data[0]);
@@ -31,7 +36,6 @@ const LandingPage = () => {
 
   const handleButtonClick = () => {
     if (polling) {
-      // pass slug instead of id here
       navigate("/welcome", { state: { slug: polling.slug } });
     }
   };

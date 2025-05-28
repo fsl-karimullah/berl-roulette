@@ -30,6 +30,7 @@ const calculatePrize = (weightedOptions) => {
 };
 
 const Roulette = () => {
+
   const [data, setData] = useState([]);
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
@@ -38,14 +39,65 @@ const Roulette = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentDateTime, setCurrentDateTime] = useState(getCurrentDateTime());
   const [randomId, setRandomId] = useState(generateRandomId());
-const location = useLocation();
-  const { slug } = location.state || {};
+  const location = useLocation();
+  const { slug, polling_id, voted_option_id } = location.state || {};
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(true);
   const [whatsAppNumber, setWhatsAppNumber] = useState("");
   const [name, setName] = useState("");
+  const [isFirstSpin, setisFirstSpin] = useState()
+
+
+  const handleSubmit = () => {
+    submitVote();
+
+  };
+
+  const submitVote = async () => {
+    if (!name.trim() || !whatsAppNumber.trim()) {
+      toast.error("Nama dan nomor WhatsApp wajib diisi.");
+      return;
+    }
+
+    try {
+      const payload = {
+        full_name: name,
+        phone_number: whatsAppNumber,
+        polling_id,
+        polling_option_id: voted_option_id,
+      };
+
+      const url = endpoint.savePostVote(slug);
+      const response = await axios.post(url, payload, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
+
+      // console.log("Vote submission response:", response.data);
+
+      if (response.data?.status === "success") {
+        setIsWhatsAppModalOpen(false);
+        toast.success("Vote berhasil dikirim.");
+        console.log('ASDASDASD', response.data?.participant?.is_roulette);
+        setCanSpin(response.data?.participant?.is_roulette == 0 ? true : false);
+      } else {
+        toast.error("Gagal mengirim vote.");
+      }
+    } catch (error) {
+      // console.log("Vote submission error:", error);
+      if (error.status == 422) {
+        toast.error(error.response.data.message);
+        return;
+      }
+      console.error("Vote submission error:", error.response.data.message);
+      toast.error(error.message);
+    }
+  };
+
 
   useEffect(() => {
-    
+
     const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
     setIsDarkMode(darkModeQuery.matches);
     darkModeQuery.addEventListener("change", (e) => setIsDarkMode(e.matches));
@@ -55,11 +107,19 @@ const location = useLocation();
       setCanSpin(false);
     }
 
+
+
+
     const fetchRouletteData = async () => {
       try {
-        const res = await axios.get(endpoint.getPollingRoulette(slug));
-        console.log("Fetched roulette data:", res.data);
-        
+        const res = await axios.get(endpoint.getPollingRoulette(slug), {
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+          },
+        });
+        // console.log("Fetched roulette data:", res.data);
+
         if (res.data.status === "success") {
           const options = res.data.data.options.map((opt, index) => ({
             option: opt.option_text,
@@ -90,13 +150,13 @@ const location = useLocation();
       fetchRouletteData();
     }
   }, [slug]);
-
+ 
   const handleSpinClick = () => {
-    if (!canSpin || data.length === 0) return;
+    if (canSpin) return;
 
     const weightedOptions = data.map((item, index) => ({
       index,
-      weight: item.weight || 1,
+      weight: item.weight || 1, 
     }));
 
     const prize = calculatePrize(weightedOptions);
@@ -125,9 +185,6 @@ const location = useLocation();
     setIsModalOpen(false);
   };
 
-  const handleSubmit = () => {
-    setIsWhatsAppModalOpen(false);
-  };
 
   const safeData =
     data.length > 0
@@ -135,7 +192,7 @@ const location = useLocation();
       : [
         {
           option: "Loading...",
-          style: { backgroundColor: "#ccc", textColor: "#000" },
+          style: { backgroundColor: "#ccc", textColor: "#000" }, 
         },
       ];
 
@@ -156,7 +213,7 @@ const location = useLocation();
       right: "auto",
       bottom: "auto",
       transform: "translate(-50%, -50%)",
-      textAlign: "center",
+      textAlign: "center", 
       padding: "20px",
       borderRadius: "15px",
       maxWidth: "90%",
@@ -231,9 +288,9 @@ const location = useLocation();
             color: isDarkMode ? "#f5f5f5" : "#222",
           }}
         >
-          <h2 className="text-2xl font-bold mb-3 text-center">Masukkan Nomor WhatsApp Anda</h2>
+          <h2 className="text-2xl font-bold mb-3 text-center">Masukkan Nama & Nomor WhatsApp Anda</h2>
           <p className="mb-6 text-sm text-center" style={{ color: isDarkMode ? "#aaa" : "#666" }}>
-            Silakan masukkan nomor WhatsApp untuk melanjutkan.
+            Silakan masukkan nama & nomor WhatsApp untuk melanjutkan.
           </p>
 
           <div className="space-y-4">
@@ -269,7 +326,7 @@ const location = useLocation();
           <button
             className="mt-6 w-full bg-[#d2ad67] py-3 rounded-md font-semibold text-white disabled:opacity-50"
             disabled={!whatsAppNumber.trim() || !name.trim()}
-            onClick={handleSubmit}
+            onClick={() => handleSubmit()}
           >
             Lanjutkan
           </button>
@@ -285,23 +342,19 @@ const location = useLocation();
         textColors={textColors}
         spinDuration={0.8}
         onStopSpinning={handleStopSpinning}
-        radiusLineColor="#d2ad67"
+        radiusLineColor="#00d084"
+        innerBorderColor="#7bcc4c"
+        outerBorderColor="#7bdcb5"
       />
 
       {/* Spin Buttons */}
       <div className="flex space-x-4 mt-6">
         <button
           className="bg-[#d2ad67] px-6 py-3 rounded-md font-semibold text-white disabled:opacity-50"
-          disabled={!canSpin || data.length === 0}
+          disabled={canSpin}
           onClick={handleSpinClick}
         >
-          Putar
-        </button>
-        <button
-          className="bg-[#d2ad67] px-6 py-3 rounded-md font-semibold text-white"
-          onClick={handleTestSpin}
-        >
-          Test Putar
+          {canSpin ? "Putar Roda" : "Sudah Diputar"}
         </button>
       </div>
 
@@ -309,31 +362,57 @@ const location = useLocation();
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
+        contentLabel="Prize Modal"
         ariaHideApp={false}
         style={modalStyle}
+        overlayClassName="fixed inset-0 flex justify-center items-center"
       >
-        <h3 className="text-lg font-bold mb-2" style={{ color: isDarkMode ? "#fff" : "#000" }}>
-          Selamat!
-        </h3>
-        <p style={{ color: isDarkMode ? "#eee" : "#333" }}>
-          Anda mendapatkan: <strong>{safeData[prizeNumber]?.option || "..."}</strong>
-        </p>
-        <p className="text-sm mt-2" style={{ color: isDarkMode ? "#ccc" : "#666" }}>
-          Waktu putaran: {currentDateTime}
-        </p>
-        <p className="text-sm mb-4" style={{ color: isDarkMode ? "#ccc" : "#666" }}>
-          ID Acak: {randomId}
-        </p>
-
-        <button
-          onClick={() => {
-            closeModal();
-          }}
-          className="bg-[#d2ad67] px-6 py-2 rounded-md font-semibold text-white mt-4"
-        >
-          Tutup
-        </button>
+        {prizeNumber !== null && (
+          <div>
+            <h2 className="text-2xl font-semibold text-center mb-4">
+              🎉 Selamat! Anda memenangkan{" "}
+              <span style={{ color: "#E9D29C" }}>
+                {data[prizeNumber].option}
+              </span>
+              !
+            </h2>
+            <img
+              src={data[prizeNumber].img}
+              alt={data[prizeNumber].option}
+              className="w-40 h-24 mx-auto mb-4"
+            />
+            <p className="text-center mb-2">
+              Tanggal & Waktu: <span className="font-medium">{currentDateTime}</span>
+            </p>
+            <p className="text-center">
+              ID Hadiah: <strong className="text-indigo-600">{randomId}</strong>
+            </p>
+            <p className="text-center text-white bg-red-700 p-2 rounded-lg my-4">
+              Anda memenangkan {data[prizeNumber].option}.
+            </p>
+            <p className="text-center text-white bg-black p-2 rounded-lg my-4">
+              <span className="text-yellow-400 font-bold">
+                Screenshot Informasi Ini
+              </span>{" "}
+              Untuk Mengambil Hadiah Anda dan Kirim Ke{" "}
+              <span className="text-yellow-300 font-bold">WhatsApp Dibawah</span>
+            </p>
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="mt-6 w-full py-3 rounded-lg transition duration-300"
+              style={{
+                backgroundColor: "#E9D29C",
+                color: isDarkMode ? "#fff" : "#000",
+              }}
+              onMouseEnter={(e) => (e.target.style.backgroundColor = "#D4B882")}
+              onMouseLeave={(e) => (e.target.style.backgroundColor = "#E9D29C")}
+            >
+              Claim Hadiah
+            </button>
+          </div>
+        )}
       </Modal>
+
     </div>
   );
 };
