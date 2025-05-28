@@ -115,7 +115,7 @@ const Roulette = () => {
             Accept: "application/json",
           },
         });
-        // console.log("Fetched roulette data:", res.data);
+        console.log("Fetched roulette data:", res.data);
 
         if (res.data.status === "success") {
           const options = res.data.data.options.map((opt, index) => ({
