@@ -66,7 +66,7 @@ const getCurrentDateTime = () => {
 const generateRandomId = () => {
   return Math.floor(1000 + Math.random() * 9000);
 };
-
+ 
 const formatPhoneNumber = (value) => {
   let cleaned = value.replace(/\D/g, '');
 
@@ -142,6 +142,7 @@ const Roulette = () => {
 
     return 0;
   };
+
   //fetch
   const fetchRouletteData = async (isRefresh = false) => {
     if (dataFetched && !isRefresh) {
@@ -246,7 +247,7 @@ const Roulette = () => {
   const handleSpinClick = () => {
     const spinCount = parseInt(localStorage.getItem("spinCount")) || 0;
 
-    if (!canSpin || spinCount >= 2) return;
+    if (!canSpin || spinCount >= 1) return;
 
     const prize = apiOptions.length > 0
       ? calculatePrizeFromAPI(apiOptions)
@@ -254,7 +255,6 @@ const Roulette = () => {
 
     setPrizeNumber(prize);
     setMustSpin(true);
-
     setWheelStoppedSpinning(false);
 
     const newSpinCount = spinCount + 1;
@@ -262,7 +262,7 @@ const Roulette = () => {
     localStorage.setItem("lastSpin", getCurrentDateTime());
     setSpinCount(newSpinCount);
 
-    if (newSpinCount >= 2) {
+    if (newSpinCount >= 1) {
       setCanSpin(false);
     }
   };
@@ -293,6 +293,25 @@ const Roulette = () => {
       updatePrizeQuantity(data[prizeNumber].id);
     }
 
+    const selectedPrizeId = apiOptions.length > 0 && data[prizeNumber] && data[prizeNumber].id
+      ? data[prizeNumber].id
+      : "default-option-id";
+
+    let phoneForAPI = whatsAppNumber;
+    if (phoneForAPI.startsWith('8')) {
+      phoneForAPI = '62' + phoneForAPI;
+    }
+    const localData = {
+      roulette_option_id: selectedPrizeId,
+      name: userName,
+      nohp: phoneForAPI,
+      id_tiktok: tiktokId,
+      title: "Event Affiliate x Tiktok 30 Mei 2025"
+    };
+
+
+    localStorage.setItem("rouletteSubmission", JSON.stringify(localData));
+
 
     setTimeout(() => {
       setIsModalOpen(true);
@@ -308,10 +327,45 @@ const Roulette = () => {
     }
   };
 
-  const closeModal = () => {
+  const closeModal = async () => {
     setIsModalOpen(false);
+
+    const localDataString = localStorage.getItem("rouletteSubmission");
+
+    if (localDataString) {
+      try {
+        const requestBody = JSON.parse(localDataString);
+
+        const response = await axios.post(endpoint.insertDataRoulette, requestBody, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          timeout: 15000,
+        });
+
+
+        toast.success("Data berhasil disimpan!");
+        localStorage.removeItem("rouletteSubmission");
+
+      } catch (error) {
+        if (error.response) {
+          const serverMessage = error.response.data?.message || "Terjadi kesalahan dari server.";
+          toast.error(`Gagal menyimpan data: ${serverMessage}`);
+        } else if (error.request) {
+          toast.error("Tidak dapat terhubung ke server. Coba lagi nanti.");
+        } else {
+          toast.error("Terjadi kesalahan saat mengirim data.");
+        }
+
+        console.error("Error submitting saved data:", error);
+      }
+    }
+
     fetchRouletteData(true);
   };
+
+
 
   const handlePhoneNumberChange = (e) => {
     const formatted = formatPhoneNumber(e.target.value);
@@ -322,40 +376,23 @@ const Roulette = () => {
     setIsSubmittingData(true);
 
     try {
-      let phoneForAPI = whatsAppNumber;
-      if (phoneForAPI.startsWith('8')) {
-        phoneForAPI = '62' + phoneForAPI;
-      }
 
-      const selectedPrizeId = apiOptions.length > 0 && data[prizeNumber] && data[prizeNumber].id
-        ? data[prizeNumber].id
-        : "default-option-id";
 
-      const requestBody = {
-        roulette_option_id: selectedPrizeId,
-        name: userName,
-        nohp: phoneForAPI,
-        id_tiktok: tiktokId,
-        title: "Event Affiliate x Tiktok 30 Mei 2025"
-      };
 
-      const response = await axios.post(endpoint.insertDataRoulette, requestBody, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        timeout: 15000,
-      });
 
-      toast.success("Data berhasil disimpan!");
+      // Save to localStorage
+
+
+      // Close WhatsApp modal, trigger closeModal after confirmation
       setIsWhatsAppModalOpen(false);
     } catch (error) {
-      console.error("Error saving lead", error);
-      toast.error("Data gagal disimpan!");
+      console.error("Error saving data to localStorage", error);
+      toast.error("Terjadi kesalahan saat menyimpan data!");
     } finally {
       setIsSubmittingData(false);
     }
   };
+
 
   const modalStyle = {
     content: {
@@ -447,8 +484,8 @@ const Roulette = () => {
         position: "relative",
       }}
     >
-      {!showTestButton && (
-        <button
+      {showTestButton && (
+        <button 
           onClick={handleTestReset}
           style={{
             position: "absolute",
@@ -456,7 +493,7 @@ const Roulette = () => {
             right: "20px",
             padding: "10px 15px",
             fontSize: "14px",
-            backgroundColor: "#ff4444",
+            backgroundColor: "#ff4444", 
             color: "#fff",
             border: "none",
             borderRadius: "5px",
@@ -612,7 +649,7 @@ const Roulette = () => {
 
       <button
         onClick={handleSpinClick}
-        disabled={!canSpin || mustSpin} 
+        disabled={!canSpin || mustSpin}
         style={{
           marginTop: 20,
           padding: "18px 20px",
@@ -633,19 +670,19 @@ const Roulette = () => {
       <p className="mt-2 text-white flex items-center gap-2">
         Kesempatan tersisa:
         <span className="inline-block bg-yellow-400 text-black text-sm font-semibold px-2 py-1 rounded-full">
-          {2 - spinCount} / 2
+          {1 - spinCount} / 1
         </span>
       </p>
 
       <Modal
-        isOpen={isModalOpen && wheelStoppedSpinning} 
+        isOpen={isModalOpen && wheelStoppedSpinning}
         onRequestClose={closeModal}
         contentLabel="Prize Modal"
         ariaHideApp={false}
         style={modalStyle}
         overlayClassName="fixed inset-0 flex justify-center items-center"
       >
-        {prizeNumber !== null && wheelStoppedSpinning && ( 
+        {prizeNumber !== null && wheelStoppedSpinning && (
           <div>
             <h2 className="text-2xl font-semibold text-center mb-4">
               🎉 Selamat! Anda memenangkan{" "}
@@ -685,7 +722,7 @@ const Roulette = () => {
               onMouseEnter={(e) => (e.target.style.backgroundColor = "#D4B882")}
               onMouseLeave={(e) => (e.target.style.backgroundColor = "#E9D29C")}
             >
-              Saya Sudah Memberikan Bukti ini Ke Booth.
+              Claim Hadiah.
             </button>
           </div>
         )}

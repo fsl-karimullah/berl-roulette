@@ -6,7 +6,7 @@ import { BrowserRouter } from "react-router";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <BrowserRouter basename="/roulette-affiliate/">
+    <BrowserRouter basename="/affiliate-tiktok/">
       <App />
     </BrowserRouter>
   </StrictMode>

@@ -1,6 +1,6 @@
 // const url = "/local";
 // const url = "https://ecommerce.berlstore.com/api";
-const url = "http://192.168.68.244:8000/api";
+const url = "https://dev.panelis.net/api";
 
 // const ecommerceUrl = "/ecomerce";
 // const ecommerceUrl = "https://ecommerce.berlmember.com/ecomerce";
