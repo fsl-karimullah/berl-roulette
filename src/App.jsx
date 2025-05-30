@@ -12,8 +12,7 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/welcome" element={<Welcome />} /> 
+        <Route path="/" element={<Welcome />} /> 
         <Route path="/roulette" element={<Roulette />} />
         <Route path="/form" element={<Form />} />
         <Route path="/invitation" element={<InvitationPage />} />

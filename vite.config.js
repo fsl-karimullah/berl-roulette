@@ -3,11 +3,11 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/fitozlim-vote/",
+  base: "/roulette-affiliate/",
   server: {
     proxy: {
       '/api': {
-        target: 'https://crm.berlmember.com',
+        target: 'https://crm.berlstore.com',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '')

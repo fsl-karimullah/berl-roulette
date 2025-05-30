@@ -6,9 +6,9 @@ import { BrowserRouter } from "react-router";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <BrowserRouter basename="/fitozlim-vote/">
+    <BrowserRouter basename="/roulette-affiliate/">
       <App />
     </BrowserRouter>
   </StrictMode>
 );
- 
+  
