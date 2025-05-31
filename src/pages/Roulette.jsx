@@ -7,52 +7,17 @@ import { endpoint } from "../api/endpoint";
 
 const fallbackData = [
   {
-    option: "Acne Toner",
+    option: "Voucher 30%",
     style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#000" },
     img: "https://raw.githubusercontent.com/fsl-karimullah/my-img-source/refs/heads/main/ATN.webp",
   },
   {
-    option: "Eye Fella (Mascara)",
+    option: "Berl Eye Fella Hydra Stay Liner",
     style: { fontSize: 10, backgroundColor: "#E8ACAC", textColor: "#000" },
     img: "https://github.com/fsl-karimullah/my-img-source/blob/main/mascara%201.png",
   },
   {
-    option: "Eye Fella (Eyebrow Grey)",
-    style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#000" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/eyebrow%201.png?raw=true",
-  },
-  {
-    option: "Eye Fella (Eyeliner)",
-    style: { fontSize: 12, backgroundColor: "#E8ACAC", textColor: "#000" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Eyeliner%201.png?raw=true",
-  },
-  {
-    option: "B Erl WOW Lightening Facial Serum",
-    style: { fontSize: 8, backgroundColor: "#F4E3C5", textColor: "#000" },
-    img: "https://berlcosmetics.com/wp-content/uploads/2024/01/NEW-FS-1-300x300.jpg",
-  },
-  {
-    option: "B Erl Fine & Fairness Cream Travel Size",
-    style: { fontSize: 8, backgroundColor: "#E8ACAC", textColor: "#000" },
-    img: "https://berlcosmetics.com/wp-content/uploads/2024/03/WDP-1.jpg",
-  },
-  {
-    option: "B Erl Intense Lightening Series",
-    style: { fontSize: 8, backgroundColor: "#F4E3C5", textColor: "#000" },
-    img: "https://berlcosmetics.com/wp-content/uploads/2024/01/LSP.jpg",
-  },
-  {
-    option: "B Erl La Belle Colorstay Lip Velvet",
-    style: { fontSize: 8, backgroundColor: "#E8ACAC", textColor: "#000" },
-    img: "https://raw.githubusercontent.com/fsl-karimullah/my-img-source/refs/heads/main/LV03.webp",
-  },
-  {
-    option: "Logam Mulia",
-    style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#000" },
-    img: "https://github.com/fsl-karimullah/my-img-source/blob/main/LM%201.png?raw=true",
-  },
-  {
-    option: "Voucher 20%",
+    option: "Affiliate Komisi 20%",
     style: { fontSize: 12, backgroundColor: "#E8ACAC", textColor: "#000" },
     img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%2020.png?raw=true",
   },
