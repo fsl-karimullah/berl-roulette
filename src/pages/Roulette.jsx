@@ -327,7 +327,6 @@ const Roulette = () => {
   };
 
 
-
   return (
     <div
       style={{
@@ -378,7 +377,7 @@ const Roulette = () => {
             className="mb-6 text-sm text-center"
             style={{ color: isDarkMode ? "#aaa" : "#666" }}
           >
-            Silakan masukkan nama & nomor WhatsApp untuk melanjutkan.
+            Silahkan masukkan nama & nomor WhatsApp untuk melanjutkan.
           </p>
 
           <div className="space-y-4">
@@ -387,7 +386,7 @@ const Roulette = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nama Lengkap"
-              className="w-full px-4 py-3 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#d2ad67] transition"
+              className="w-full px-4 py-3 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ping-600 transition"
               style={{
                 backgroundColor: isDarkMode ? "#333" : "#f9f9f9",
                 border: "1px solid",
@@ -401,7 +400,7 @@ const Roulette = () => {
               value={whatsAppNumber}
               onChange={(e) => setWhatsAppNumber(e.target.value)}
               placeholder="Nomor WhatsApp"
-              className="w-full px-4 py-3 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#d2ad67] transition"
+              className="w-full px-4 py-3 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ping-600 transition"
               style={{
                 backgroundColor: isDarkMode ? "#333" : "#f9f9f9",
                 border: "1px solid",
@@ -412,7 +411,7 @@ const Roulette = () => {
           </div>
 
           <button
-            className="mt-6 w-full bg-[#d2ad67] py-3 rounded-md font-semibold text-white disabled:opacity-50"
+            className="mt-6 w-full bg-pink-600 py-3 rounded-md font-semibold text-white disabled:opacity-50"
             disabled={!whatsAppNumber.trim() || !name.trim()}
             onClick={() => handleSubmit()}
           >
@@ -440,7 +439,7 @@ const Roulette = () => {
       {/* Spin Buttons */}
       <div className="flex space-x-4 mt-6 z-10">
         <button
-          className="bg-[#d2ad67] px-6 py-3 rounded-md font-semibold text-white "
+          className="bg-pink-600 px-6 py-3 rounded-md font-semibold text-white "
           disabled={!canSpin}
           onClick={handleSpinClick}
         >
@@ -463,7 +462,7 @@ const Roulette = () => {
           <div>
             <h2 className="text-2xl font-semibold text-center mb-4">
               🎉 Selamat! Anda memenangkan{" "}
-              <span style={{ color: "#E9D29C" }}>
+              <span className="text-pink-600 font-bold">
                 {data[prizeNumber].option}
               </span>
               !
@@ -480,27 +479,26 @@ const Roulette = () => {
             <p className="text-center">
               ID Hadiah: <strong className="text-indigo-600">{randomId}</strong>
             </p>
-            <p className="text-center text-white bg-red-700 p-2 rounded-lg my-4">
+            <p className="text-center text-white bg-pink-600 p-2 rounded-lg my-4">
               Anda memenangkan {data[prizeNumber].option}.
             </p>
             <p className="text-center text-white bg-black p-2 rounded-lg my-4">
-              <span className="text-yellow-400 font-bold">
+              <span className="text-pink-700 font-bold">
                 Screenshot Informasi Ini
               </span>{" "}
-              Untuk Mengambil Hadiah Anda dan Kirim Ke{" "}
-              <span className="text-yellow-300 font-bold">
-                WhatsApp Dibawah
+              Untuk Mengambil Hadiah Anda dan Simpan{" "}
+              <span className="text-pink-700 font-bold">
+                Sebagai Bukti
               </span>
             </p>
             <button
               onClick={() => handleClaimPrize(data[prizeNumber]?.id)}
-              className="mt-6 w-full py-3 rounded-lg transition duration-300"
+              className="mt-6 w-full py-3 bg-pink-600 rounded-lg transition duration-300"
               style={{
-                backgroundColor: "#E9D29C",
                 color: isDarkMode ? "#fff" : "#000",
               }}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = "#D4B882")}
-              onMouseLeave={(e) => (e.target.style.backgroundColor = "#E9D29C")}
+              onMouseEnter={(e) => (e.target.style.backgroundColor = "#db2777")}
+              onMouseLeave={(e) => (e.target.style.backgroundColor = "#db2776")}
             >
               Claim Hadiah
             </button>

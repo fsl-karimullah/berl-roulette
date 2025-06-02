@@ -38,19 +38,35 @@ const Welcome = () => {
   }, [id]);
 
   const handleVote = (optionId) => {
-    console.log("Voted for option ID:", optionId);
+    // 1. Highlight selected option
     setVotedOptionId(optionId);
+
+    // 2. Update local polling state immediately
+    const updatedOptions = polling.options.map((option) => {
+      if (option.id === optionId) {
+        return {
+          ...option,
+          votes: (option.votes || 0) + 1,
+        };
+      }
+      return option;
+    });
+
+    setPolling({
+      ...polling,
+      options: updatedOptions,
+    });
   };
 
-  const handleButtonClickAndNavigate = () => { 
+  const handleButtonClickAndNavigate = () => {
     if (polling && votedOptionId) {
       navigate("/roulette", {
         state: {
-          id: polling.id, 
+          id: polling.id,
           polling_id: polling.id,
           voted_option_id: votedOptionId,
         },
-      }); 
+      });
 
     } else {
       toast.error("Silakan pilih salah satu opsi sebelum melanjutkan!", {
@@ -156,9 +172,9 @@ const Welcome = () => {
                     }}
                   />
                   <div className="absolute left-3 top-0 h-full flex items-center text-white text-sm font-bold">
-                    {optionVotes} vote{optionVotes !== 1 ? "s" : ""}
+
                   </div>
-                  <div className="absolute right-3 top-0 h-full flex items-center text-white text-sm font-bold">
+                  <div className="absolute right-3 top-0 h-full flex items-center text-black text-sm font-bold">
                     {percent.toFixed(1)}%
                   </div>
                 </div>
