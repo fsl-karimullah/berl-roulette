@@ -6,7 +6,7 @@ const url = "https://dev.panelis.net/api";
 // const ecommerceUrl = "https://ecommerce.berlmember.com/ecomerce";
 export const endpoint = {
   getPollingData: `${url}/pollings`,
-  getPollingById: (id) => `${url}/pollings/${id}`,
+  getPollingById: (slug) => `${url}/pollings/${slug}`,
   getPollingRoulette: (id) => `${url}/pollings/${id}/roulettes`,
   savePostVote: (id) => `${url}/pollings/${id}/save-participant`,
   saveClaimPrize: (id) => `${url}/pollings/${id}/roulettes/claim-reward`,

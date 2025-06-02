@@ -2,44 +2,43 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { endpoint } from "../api/endpoint";
-
+import { useParams } from 'react-router-dom';
 const IMAGE_BASE_URL = "http://dev.panelis.net/storage/";
 
 const LandingPage = () => {
   const [polling, setPolling] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
+  const { slug } = useParams();
   useEffect(() => {
+    if (!slug) return;
+
     axios
-      .get(endpoint.getPollingData, {
-        headers:{
+      .get(endpoint.getPollingById(slug), {
+        headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
         }
       })
       .then((response) => {
-        if (response.data.status === "success" && response.data.data.length > 0) {
-          setPolling(response.data.data[0]);
-        } else {
-          setPolling(null); 
-        }
+        setPolling(response.data.data);
       })
       .catch((error) => {
         console.error("Error fetching polling data:", error);
         setPolling(null);
       })
       .finally(() => {
-        setLoading(false); 
+        setLoading(false);
       });
-  }, []);
+  }, [slug]);
 
-  const handleButtonClick = () => { 
+
+  const handleButtonClick = () => {
     if (polling) {
-      navigate("/welcome", { state: { id: polling.id } });
+      navigate(`/polling/${slug}`, { state: { id: polling.id } });
     }
   };
-
+ 
   return (
     <div className="w-screen h-screen relative">
       {polling ? (

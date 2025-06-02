@@ -88,7 +88,7 @@ const Welcome = () => {
   if (!polling) {
     return (
       <div className="w-screen h-screen flex justify-center items-center bg-black text-white">
-        Polling data not found.
+        Polling data not found. 
       </div>
     );
   }
@@ -189,7 +189,7 @@ const Welcome = () => {
             onClick={handleButtonClickAndNavigate}
             className="px-6 py-3 bg-pink-600 text-white rounded-lg font-semibold hover:bg-pink-700 transition"
           >
-            Vote & Putar Roda
+            Vote & Dapatkan Hadiah!
           </button>
         </div>
 

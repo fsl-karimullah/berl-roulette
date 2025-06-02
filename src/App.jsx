@@ -12,8 +12,8 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/welcome" element={<Welcome />} /> 
+        <Route path="/:slug" element={<LandingPage />} />
+        <Route path="/polling/:slug" element={<Welcome />} /> 
         <Route path="/roulette" element={<Roulette />} />
         <Route path="/form" element={<Form />} />
         <Route path="/invitation" element={<InvitationPage />} />
