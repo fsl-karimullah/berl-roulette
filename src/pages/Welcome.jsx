@@ -3,12 +3,13 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { endpoint } from "../api/endpoint";
+import { toast } from "react-toastify";
 
-const API_BASE_URL = "http://192.168.68.239:8000";
+const API_BASE_URL = "https://dev.panelis.net";
 
 const Welcome = () => {
   const location = useLocation();
-  const { slug } = location.state || {};
+  const { id } = location.state || {};
   const navigate = useNavigate();
 
   const [polling, setPolling] = useState(null);
@@ -16,10 +17,10 @@ const Welcome = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!slug) return;
+    if (!id) return;
 
     axios
-      .get(endpoint.getPollingById(slug), {
+      .get(endpoint.getPollingById(id), {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
@@ -31,39 +32,33 @@ const Welcome = () => {
         }
       })
       .catch((err) => {
-        console.error("Error fetching polling by slug:", err);
+        console.error("Error fetching polling by id:", err);
       })
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [id]);
 
   const handleVote = (optionId) => {
     console.log("Voted for option ID:", optionId);
     setVotedOptionId(optionId);
   };
 
-
-  useEffect(() => {
-    const savedVote = localStorage.getItem("voted_option_id");
-    if (savedVote) {
-      setVotedOptionId(savedVote);
-    }
-  }, []);
-
-
-  const handleButtonClickAndNavigate = () => {
+  const handleButtonClickAndNavigate = () => { 
     if (polling && votedOptionId) {
       navigate("/roulette", {
         state: {
-          slug: polling.slug,
+          id: polling.id, 
           polling_id: polling.id,
           voted_option_id: votedOptionId,
         },
-      });
+      }); 
+
     } else {
-      alert("Please vote before continuing.");
+      toast.error("Silakan pilih salah satu opsi sebelum melanjutkan!", {
+        position: "top-center",
+        autoClose: 3000,
+      });
     }
   };
-
 
 
   if (loading) {
@@ -181,6 +176,8 @@ const Welcome = () => {
             Vote & Putar Roda
           </button>
         </div>
+
+
       </div>
     </div>
   );

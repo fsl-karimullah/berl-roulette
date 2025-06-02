@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { endpoint } from "../api/endpoint";
 
-const IMAGE_BASE_URL = "http://192.168.68.239:8000/storage/";
+const IMAGE_BASE_URL = "http://dev.panelis.net/storage/";
 
 const LandingPage = () => {
   const [polling, setPolling] = useState(null);
@@ -22,7 +22,7 @@ const LandingPage = () => {
         if (response.data.status === "success" && response.data.data.length > 0) {
           setPolling(response.data.data[0]);
         } else {
-          setPolling(null);
+          setPolling(null); 
         }
       })
       .catch((error) => {
@@ -30,13 +30,13 @@ const LandingPage = () => {
         setPolling(null);
       })
       .finally(() => {
-        setLoading(false);
+        setLoading(false); 
       });
   }, []);
 
-  const handleButtonClick = () => {
+  const handleButtonClick = () => { 
     if (polling) {
-      navigate("/welcome", { state: { slug: polling.slug } });
+      navigate("/welcome", { state: { id: polling.id } });
     }
   };
 

@@ -37,21 +37,30 @@ const Roulette = () => {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [canSpin, setCanSpin] = useState(true);
+  const [canSpin, setCanSpin] = useState(false);
+
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentDateTime, setCurrentDateTime] = useState(getCurrentDateTime());
   const [randomId, setRandomId] = useState(generateRandomId());
   const location = useLocation();
-  const { slug, polling_id, voted_option_id } = location.state || {};
+  const { id, polling_id, voted_option_id } = location.state || {};
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(true);
   const [whatsAppNumber, setWhatsAppNumber] = useState("");
   const [name, setName] = useState("");
   const [isFirstSpin, setisFirstSpin] = useState();
   const [refreshRoulette, setrefreshRoulette] = useState(false);
-
+  const [isRoulette, setisRoulette] = useState(0);
+  const [saveBackgroundImage, setSaveBackgroundImage] = useState("")
+  const API_BASE_URL = "https://dev.panelis.net";
   const handleSubmit = () => {
     submitVote();
+    // setIsWhatsAppModalOpen(false); 
   };
+
+  useEffect(() => {
+    console.log("canSpin changed:", canSpin);
+  }, [canSpin]);
+
 
   const submitVote = async () => {
     if (!name.trim() || !whatsAppNumber.trim()) {
@@ -67,7 +76,7 @@ const Roulette = () => {
         polling_option_id: voted_option_id,
       };
 
-      const url = endpoint.savePostVote(slug);
+      const url = endpoint.savePostVote(id);
       const response = await axios.post(url, payload, {
         headers: {
           "Content-Type": "application/json",
@@ -75,47 +84,51 @@ const Roulette = () => {
         },
       });
 
-      // console.log("Vote submission response:", response.data);
+      const participant = response.data?.participant;
 
-      if (response.data?.status === "success") {
-        setIsWhatsAppModalOpen(false);
+      if (response.data?.status === "success" && participant) {
+        localStorage.setItem("is_roulette", participant.is_roulette);
+        localStorage.setItem("participant_id", participant.id);
+
+        setCanSpin(participant.is_roulette === 0);
+        console.log("participant.is_roulette:", participant.is_roulette);
+
+
         toast.success("Vote berhasil dikirim.");
-        console.log("ASDASDASD", response.data?.participant?.is_roulette);
-        setCanSpin(
-          response.data?.participant?.is_roulette === 0 ? true : false
-        );
+        setIsWhatsAppModalOpen(false);
       } else {
         toast.error("Gagal mengirim vote.");
       }
     } catch (error) {
-      // console.log("Vote submission error:", error);
-      if (error.status == 422) {
+      if (error.response?.status === 422) {
         toast.error(error.response.data.message);
         return;
       }
-      console.error("Vote submission error:", error.response.data.message);
-      toast.error(error.message);
+      toast.error(error.message || "Terjadi kesalahan.");
     }
   };
+
 
   useEffect(() => {
     const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
     setIsDarkMode(darkModeQuery.matches);
     darkModeQuery.addEventListener("change", (e) => setIsDarkMode(e.matches));
 
-    const hasSpun = localStorage.getItem("hasSpun");
-    if (hasSpun) {
-      setCanSpin(false);
+    const isRoulette = localStorage.getItem("is_roulette");
+    if (isRoulette !== null) {
+      setCanSpin(isRoulette === 0);
     }
+
     const fetchRouletteData = async () => {
       try {
-        const res = await axios.get(endpoint.getPollingRoulette(slug), {
+        const res = await axios.get(endpoint.getPollingRoulette(id), {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
         });
-        console.log("Fetched roulette data:", res.data);
+
+        setSaveBackgroundImage(`${API_BASE_URL}/storage/${res.data.data.background_image}`);
 
         if (res.data.status === "success") {
           const options = res.data.data.options.map((opt, index) => ({
@@ -134,6 +147,7 @@ const Roulette = () => {
             img: opt.image || undefined,
             id: opt.id,
           }));
+
           setData(options);
         } else {
           toast.error("Failed to load roulette data");
@@ -144,13 +158,21 @@ const Roulette = () => {
       }
     };
 
-    if (slug || refreshRoulette) {
+    if (id || refreshRoulette) {
       fetchRouletteData();
     }
-  }, [slug, refreshRoulette]);
+  }, [id, refreshRoulette]);
+
 
   const handleSpinClick = () => {
     if (!canSpin) return;
+
+    const isRoulette = Number(localStorage.getItem("is_roulette"));
+    if (isRoulette === 1) {
+      toast.error("Kamu sudah pernah spin sebelumnya.");
+      return;
+    }
+
 
     const weightedOptions = data.map((item, index) => ({
       index,
@@ -160,15 +182,15 @@ const Roulette = () => {
     const prize = calculatePrize(weightedOptions);
 
     setPrizeNumber(prize);
-    // console.log("Prize number selected:", prize);
     setMustSpin(true);
     setCanSpin(false);
-    localStorage.setItem("hasSpun", "true");
-    localStorage.setItem("lastSpin", getCurrentDateTime());
+
+    localStorage.setItem("is_roulette", "1");
   };
 
+
   const handleTestSpin = () => {
-    localStorage.removeItem("hasSpun");
+    // localStorage.removeItem("hasSpun");
     setCanSpin(true);
     handleSpinClick();
   };
@@ -196,15 +218,18 @@ const Roulette = () => {
       };
       console.log("Payload for claim prize:", payload);
 
-      const url = endpoint.saveClaimPrize(slug);
+      const prizeId = data[prizeNumber]?.id;
+      const url = endpoint.saveClaimPrize(prizeId);
+
       const response = await axios.post(url, payload, {
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
+          "Accept": "application/json",
         },
       });
 
       // console.log("Vote submission response:", response.data);
+      closeModal();
       toast.success("Hadiah berhasil diklaim.");
     } catch (error) {
       // console.log("Vote submission error:", error);
@@ -222,18 +247,27 @@ const Roulette = () => {
     data.length > 0
       ? data
       : [
-          {
-            option: "Loading...",
-            style: { backgroundColor: "#ccc", textColor: "#000" },
-          },
-        ];
+        {
+          option: "Loading...",
+          style: { backgroundColor: "#ccc", textColor: "#000" },
+        },
+      ];
 
   const backgroundColors = [
     safeData[0]?.style.backgroundColor || "#ffffff",
     safeData[1]?.style.backgroundColor ||
-      safeData[0]?.style.backgroundColor ||
-      "#000000",
+    safeData[0]?.style.backgroundColor ||
+    "#000000",
   ];
+
+  const calculateDynamicFontSize = (data, baseFontSize = 18, maxLength = 20) => {
+    const longestTextLength = Math.max(...data.map(item => item.option.length));
+    const scaleFactor = longestTextLength > maxLength ? maxLength / longestTextLength : 1;
+    return Math.floor(baseFontSize * scaleFactor);
+  };
+
+  const dynamicFontSize = calculateDynamicFontSize(safeData);
+
 
   const textColors = [
     safeData[0]?.style.textColor || "#000000",
@@ -292,6 +326,8 @@ const Roulette = () => {
     },
   };
 
+
+
   return (
     <div
       style={{
@@ -304,9 +340,22 @@ const Roulette = () => {
         justifyContent: "center",
         alignItems: "center",
         overflow: "hidden",
-        filter: isDarkMode ? "brightness(0.8)" : "none",
+        position: "relative",
+        backgroundImage: `url(${saveBackgroundImage})`,
       }}
     >
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          zIndex: 1,
+          pointerEvents: "none",
+        }}
+      />
       {/* WhatsApp Modal */}
       <Modal
         isOpen={isWhatsAppModalOpen}
@@ -379,23 +428,27 @@ const Roulette = () => {
         data={safeData}
         backgroundColors={backgroundColors}
         textColors={textColors}
-        spinDuration={0.8}
         onStopSpinning={handleStopSpinning}
-        radiusLineColor="#00d084"
-        innerBorderColor="#7bcc4c"
-        outerBorderColor="#7bdcb5"
+        outerBorderColor="#ccc"
+        innerRadius={20}
+        radiusLineColor="#eee"
+        fontSize={dynamicFontSize}
+        spinDuration={0.5}
       />
 
+
       {/* Spin Buttons */}
-      <div className="flex space-x-4 mt-6">
+      <div className="flex space-x-4 mt-6 z-10">
         <button
-          className="bg-[#d2ad67] px-6 py-3 rounded-md font-semibold text-white disabled:opacity-50"
+          className="bg-[#d2ad67] px-6 py-3 rounded-md font-semibold text-white "
           disabled={!canSpin}
           onClick={handleSpinClick}
         >
-          {!canSpin ? "Putar Roda" : "Sudah Diputar"}
+          {canSpin ? "Putar Roda" : "Sudah Diputar"}
         </button>
       </div>
+
+
 
       {/* Result Modal */}
       <Modal
@@ -416,7 +469,7 @@ const Roulette = () => {
               !
             </h2>
             <img
-              src={data[prizeNumber].img}
+              src={`${API_BASE_URL}/storage/${data[prizeNumber].img}`}
               alt={data[prizeNumber].option}
               className="w-40 h-24 mx-auto mb-4"
             />
@@ -440,7 +493,7 @@ const Roulette = () => {
               </span>
             </p>
             <button
-              onClick={() => handleClaimPrize(data[prizeNumber].id)}
+              onClick={() => handleClaimPrize(data[prizeNumber]?.id)}
               className="mt-6 w-full py-3 rounded-lg transition duration-300"
               style={{
                 backgroundColor: "#E9D29C",
