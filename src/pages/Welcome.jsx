@@ -4,6 +4,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { endpoint } from "../api/endpoint";
 import { toast } from "react-toastify";
+import '../index.css'
+import '../assets/fonts/Poppins/Poppins-Regular.ttf';
+
 
 const API_BASE_URL = "https://dev.panelis.net";
 
@@ -15,6 +18,8 @@ const Welcome = () => {
   const [polling, setPolling] = useState(null);
   const [votedOptionId, setVotedOptionId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+
 
   useEffect(() => {
     if (!id) return;
@@ -38,10 +43,10 @@ const Welcome = () => {
   }, [id]);
 
   const handleVote = (optionId) => {
-    // 1. Highlight selected option
     setVotedOptionId(optionId);
+    setShowModal(true); // open modal
 
-    // 2. Update local polling state immediately
+    // Update vote count locally
     const updatedOptions = polling.options.map((option) => {
       if (option.id === optionId) {
         return {
@@ -57,6 +62,7 @@ const Welcome = () => {
       options: updatedOptions,
     });
   };
+
 
   const handleButtonClickAndNavigate = () => {
     if (polling && votedOptionId) {
@@ -88,7 +94,7 @@ const Welcome = () => {
   if (!polling) {
     return (
       <div className="w-screen h-screen flex justify-center items-center bg-black text-white">
-        Polling data not found. 
+        Polling data not found.
       </div>
     );
   }
@@ -111,7 +117,7 @@ const Welcome = () => {
     >
       <div className="absolute inset-0 bg-black bg-opacity-50 z-0" />
       <div className="w-full min-h-screen flex flex-col justify-start items-center px-4 pt-16 pb-10 relative z-10 text-white">
-        <h1 className="text-4xl font-bold mb-4 text-center">{polling.title}</h1>
+        <h1 className="text-4xl font-bold mb-4 text-center" >{polling.title}</h1>
         <p className="mb-8 max-w-xl text-center">{polling.description}</p>
 
         {/* First foreach: Horizontal scrollable image row */}
@@ -184,14 +190,27 @@ const Welcome = () => {
         </div>
 
         {/* CTA Button */}
-        <div className="flex justify-center w-full">
-          <button
-            onClick={handleButtonClickAndNavigate}
-            className="px-6 py-3 bg-pink-600 text-white rounded-lg font-semibold hover:bg-pink-700 transition"
-          >
-            Vote & Dapatkan Hadiah!
-          </button>
-        </div>
+        {showModal && (
+          <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex justify-center items-center px-4">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center relative">
+              <button
+                onClick={() => setShowModal(false)}
+                className="absolute top-2 right-2 text-gray-500 hover:text-red-500"
+              >
+                ✕
+              </button>
+              <h2 className="text-xl font-bold mb-4" style={{color:'#7BCC4C'}}>Konfirmasi Pilihan Anda</h2>
+              <p className="text-gray-700 mb-6">Apakah Anda yakin ingin memilih opsi ini dan melanjutkan ke hadiah?</p>
+              <button
+                onClick={handleButtonClickAndNavigate}
+                style={{backgroundColor:'#7BCC4C'}}
+                className="px-6 py-3  text-white rounded-lg font-semibold hover:bg-green-300 transition"
+              >
+                Klik dan Dapatkan Hadiah!
+              </button>
+            </div>
+          </div>
+        )}
 
 
       </div>

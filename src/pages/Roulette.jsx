@@ -4,7 +4,8 @@ import Modal from "react-modal";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { endpoint } from "../api/endpoint";
-import { useLocation, useNavigate } from "react-router";
+import { Navigate, useLocation, useNavigate } from "react-router";
+import Confetti from 'react-confetti';
 
 const getCurrentDateTime = () => {
   const now = new Date();
@@ -37,7 +38,7 @@ const Roulette = () => {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [canSpin, setCanSpin] = useState(false);
+  const [canSpin, setCanSpin] = useState(false); 
 
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentDateTime, setCurrentDateTime] = useState(getCurrentDateTime());
@@ -57,6 +58,8 @@ const Roulette = () => {
     // setIsWhatsAppModalOpen(false); 
   };
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     console.log("canSpin changed:", canSpin);
   }, [canSpin]);
@@ -71,7 +74,7 @@ const Roulette = () => {
     try {
       const payload = {
         full_name: name,
-        phone_number: whatsAppNumber,
+        phone_number: whatsAppNumber, 
         polling_id,
         polling_option_id: voted_option_id,
       };
@@ -228,11 +231,10 @@ const Roulette = () => {
         },
       });
 
-      // console.log("Vote submission response:", response.data);
       closeModal();
-      toast.success("Hadiah berhasil diklaim.");
+      toast.success("Selamat hadiah berhasil di klaim! tunggu ya admin akan segera menghubungimu dalam waktu dekat.");
+      navigate("/thanks");
     } catch (error) {
-      // console.log("Vote submission error:", error);
       if (error.status == 400) {
         toast.error(error.response.data.message);
         setrefreshRoulette(true);
@@ -260,13 +262,25 @@ const Roulette = () => {
     "#000000",
   ];
 
-  const calculateDynamicFontSize = (data, baseFontSize = 18, maxLength = 20) => {
-    const longestTextLength = Math.max(...data.map(item => item.option.length));
-    const scaleFactor = longestTextLength > maxLength ? maxLength / longestTextLength : 1;
-    return Math.floor(baseFontSize * scaleFactor);
+  const getMaxTextLength = () => {
+    if (!safeData || safeData.length === 0) return 0;
+    return Math.max(...safeData.map(item => item.option.length));
   };
 
-  const dynamicFontSize = calculateDynamicFontSize(safeData);
+  const maxTextLength = getMaxTextLength();
+
+  const dynamicFontSize =
+    maxTextLength <= 6
+      ? 26
+      : maxTextLength <= 10
+        ? 22
+        : maxTextLength <= 14
+          ? 18 
+          : maxTextLength <= 20 
+            ? 14
+            : 12;
+
+
 
 
   const textColors = [
@@ -312,12 +326,8 @@ const Roulette = () => {
       borderRadius: "15px",
       maxWidth: "90%",
       width: "400px",
-      backgroundColor: isDarkMode ? "#121212" : "#fff",
-      color: isDarkMode ? "#fff" : "#000",
+      color: isDarkMode ? "#ffffff" : "#000000",
       border: "none",
-      boxShadow: isDarkMode
-        ? "0 0 10px rgba(255, 255, 255, 0.1)"
-        : "0 0 10px rgba(0, 0, 0, 0.1)",
       zIndex: 1100,
     },
     overlay: {
@@ -325,7 +335,6 @@ const Roulette = () => {
       zIndex: 1099,
     },
   };
-
 
   return (
     <div
@@ -364,18 +373,19 @@ const Roulette = () => {
         style={whatsAppModalStyle}
       >
         <div
-          className="p-6 rounded-lg shadow-lg max-w-md mx-auto"
+          className="p-6 rounded-lg  max-w-md mx-auto"
           style={{
-            backgroundColor: isDarkMode ? "#1e1e1e" : "#fff",
-            color: isDarkMode ? "#f5f5f5" : "#222",
+            backgroundColor: "#7BCC4C",
+            border: "2px solid #8D568C",
+            color: isDarkMode ? "#fff" : "#222",
           }}
         >
-          <h2 className="text-2xl font-bold mb-3 text-center">
-            Masukkan Nama & Nomor WhatsApp Anda
+          <h2 className="text-xl font-bold mb-3 text-center">
+            Lengkapi Data Untuk Ukutan Spinwheelnya
           </h2>
           <p
             className="mb-6 text-sm text-center"
-            style={{ color: isDarkMode ? "#aaa" : "#666" }}
+            style={{ color: isDarkMode ? "#eee" : "#444" }}
           >
             Silahkan masukkan nama & nomor WhatsApp untuk melanjutkan.
           </p>
@@ -386,12 +396,11 @@ const Roulette = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nama Lengkap"
-              className="w-full px-4 py-3 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ping-600 transition"
+              className="w-full px-4 py-3 rounded-md text-sm focus:outline-none focus:ring-2 transition"
               style={{
-                backgroundColor: isDarkMode ? "#333" : "#f9f9f9",
-                border: "1px solid",
-                borderColor: isDarkMode ? "#555" : "#ccc",
-                color: isDarkMode ? "#fff" : "#333",
+                backgroundColor: "#ffffff",
+                border: "1px solid #8D568C",
+                color: "#333",
               }}
             />
 
@@ -400,18 +409,21 @@ const Roulette = () => {
               value={whatsAppNumber}
               onChange={(e) => setWhatsAppNumber(e.target.value)}
               placeholder="Nomor WhatsApp"
-              className="w-full px-4 py-3 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ping-600 transition"
+              className="w-full px-4 py-3 rounded-md text-sm focus:outline-none focus:ring-2 transition"
               style={{
-                backgroundColor: isDarkMode ? "#333" : "#f9f9f9",
-                border: "1px solid",
-                borderColor: isDarkMode ? "#555" : "#ccc",
-                color: isDarkMode ? "#fff" : "#333",
+                backgroundColor: "#ffffff",
+                border: "1px solid #8D568C",
+                color: "#333",
               }}
             />
           </div>
 
           <button
-            className="mt-6 w-full bg-pink-600 py-3 rounded-md font-semibold text-white disabled:opacity-50"
+            className="mt-6 w-full py-3 rounded-md font-semibold text-white transition"
+            style={{
+              backgroundColor:
+                !whatsAppNumber.trim() || !name.trim() ? "#ccc" : "#8D568C",
+            }}
             disabled={!whatsAppNumber.trim() || !name.trim()}
             onClick={() => handleSubmit()}
           >
@@ -419,6 +431,7 @@ const Roulette = () => {
           </button>
         </div>
       </Modal>
+
 
       {/* Roulette Wheel */}
       <Wheel
@@ -435,17 +448,45 @@ const Roulette = () => {
         spinDuration={0.5}
       />
 
-
       {/* Spin Buttons */}
       <div className="flex space-x-4 mt-6 z-10">
         <button
-          className="bg-pink-600 px-6 py-3 rounded-md font-semibold text-white "
+          className="px-6 py-3 rounded-md font-semibold"
           disabled={!canSpin}
+          style={{
+            backgroundColor: "#fff",
+            color: "#8D568C",
+            border: `2px solid #8D568C`,
+            cursor: canSpin ? "pointer" : "not-allowed",
+          }}
           onClick={handleSpinClick}
         >
-          {canSpin ? "Putar Roda" : "Sudah Diputar"}
+          {canSpin ? "Mainkan Spinwheel" : "Spinwheel Sudah Diputar"}
         </button>
       </div>
+
+
+      {isModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            pointerEvents: "none",
+            zIndex: 9999,
+          }}
+        >
+          <Confetti
+            width={window.innerWidth}
+            height={window.innerHeight}
+            numberOfPieces={200}
+            gravity={0.3}
+            recycle={false}
+          />
+        </div>
+      )}
 
 
 
@@ -460,51 +501,95 @@ const Roulette = () => {
       >
         {prizeNumber !== null && data && data[prizeNumber] && (
           <div>
-            <h2 className="text-2xl font-semibold text-center mb-4">
-              🎉 Selamat! Anda memenangkan{" "}
-              <span className="text-pink-600 font-bold">
+            <h2
+              className="text-2xl font-semibold text-center mb-4"
+              style={{ color: isDarkMode ? "#7BCC4C" : "#6B8E23" /* darker green for light mode */ }}
+            >
+              🎉 Selamat! Kamu memenangkan{" "}
+              <span className="font-bold" style={{ color: "#8D568C" }}>
                 {data[prizeNumber].option}
               </span>
               !
             </h2>
+
             <img
               src={`${API_BASE_URL}/storage/${data[prizeNumber].img}`}
               alt={data[prizeNumber].option}
               className="w-40 h-24 mx-auto mb-4"
+              style={{ borderRadius: 8, border: `2px solid ${isDarkMode ? "#8D568C" : "#7BCC4C"}` }}
             />
-            <p className="text-center mb-2">
+
+            <p
+              className="text-center mb-2"
+              style={{ color: isDarkMode ? "#B4D99E" : "#355E3B" }} // lighter/darker green shade
+            >
               Tanggal & Waktu:{" "}
-              <span className="font-medium">{currentDateTime}</span>
+              <span className="font-medium" style={{ color: isDarkMode ? "#C1E1A6" : "#4F7942" }}>
+                {currentDateTime}
+              </span>
             </p>
-            <p className="text-center">
-              ID Hadiah: <strong className="text-indigo-600">{randomId}</strong>
+
+            <p className="text-center" style={{ color: isDarkMode ? "#CBB0D7" : "#6B4C88" }}>
+              ID Hadiah:{" "}
+              <strong style={{ color: "#8D568C" }}>
+                {randomId}
+              </strong>
             </p>
-            <p className="text-center text-white bg-pink-600 p-2 rounded-lg my-4">
-              Anda memenangkan {data[prizeNumber].option}.
+
+            <p
+              className="text-center p-2 rounded-lg my-4"
+              style={{
+                backgroundColor: "#7BCC4C",
+                color: "#fff",
+                fontWeight: "600",
+              }}
+            >
+              Kamu memenangkan {data[prizeNumber].option}.
             </p>
-            <p className="text-center text-white bg-black p-2 rounded-lg my-4">
-              <span className="text-pink-700 font-bold">
+
+            <p
+              className="text-center p-2 rounded-lg my-4"
+              style={{
+                backgroundColor: isDarkMode ? "#8D568C" : "#E5D4EB",
+                color: isDarkMode ? "#E9D5FF" : "#6B4C88",
+                fontWeight: "700",
+              }}
+            >
+              <span>
                 Screenshot Informasi Ini
               </span>{" "}
-              Untuk Mengambil Hadiah Anda dan Simpan{" "}
-              <span className="text-pink-700 font-bold">
+              Untuk Mengambil Hadiah Kamu dan Simpan{" "}
+              <span>
                 Sebagai Bukti
               </span>
             </p>
+
             <button
               onClick={() => handleClaimPrize(data[prizeNumber]?.id)}
-              className="mt-6 w-full py-3 bg-pink-600 rounded-lg transition duration-300"
+              className="mt-6 w-full py-3 rounded-lg transition duration-300"
               style={{
-                color: isDarkMode ? "#fff" : "#000",
+                backgroundColor: "#7BCC4C",
+                color: isDarkMode ? "#121212" : "#000",
+                border: `2px solid #8D568C`,
+                fontWeight: "600",
               }}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = "#db2777")}
-              onMouseLeave={(e) => (e.target.style.backgroundColor = "#db2776")}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = "#8D568C";
+                e.target.style.color = "#fff";
+                e.target.style.borderColor = "#7BCC4C";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "#7BCC4C";
+                e.target.style.color = isDarkMode ? "#121212" : "#000";
+                e.target.style.borderColor = "#8D568C";
+              }}
             >
               Claim Hadiah
             </button>
           </div>
         )}
       </Modal>
+
     </div>
   );
 };

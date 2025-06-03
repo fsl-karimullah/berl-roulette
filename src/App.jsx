@@ -7,6 +7,7 @@ import InvitationPage from "./pages/InvitationPage";
 import { ToastContainer } from "react-toastify";
 import "./App.css";
 import LandingPage from "./pages/LandingPage";
+import ThanksPage from "./pages/ThanksPage";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/roulette" element={<Roulette />} />
         <Route path="/form" element={<Form />} />
         <Route path="/invitation" element={<InvitationPage />} />
+        <Route path="/thanks" element={<ThanksPage />} />
       </Routes>
       <ToastContainer />
     </>
