@@ -19,6 +19,8 @@ const Welcome = () => {
   const [votedOptionId, setVotedOptionId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+
 
 
   useEffect(() => {
@@ -43,10 +45,11 @@ const Welcome = () => {
   }, [id]);
 
   const handleVote = (optionId) => {
+    const selected = polling.options.find(opt => opt.id === optionId);
+    setShowModal(true);
+    setSelectedOption(selected);
     setVotedOptionId(optionId);
-    setShowModal(true); // open modal
 
-    // Update vote count locally
     const updatedOptions = polling.options.map((option) => {
       if (option.id === optionId) {
         return {
@@ -190,7 +193,7 @@ const Welcome = () => {
         </div>
 
         {/* CTA Button */}
-        {showModal && (
+        {showModal && selectedOption && (
           <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex justify-center items-center px-4">
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center relative">
               <button
@@ -199,12 +202,21 @@ const Welcome = () => {
               >
                 ✕
               </button>
-              <h2 className="text-xl font-bold mb-4" style={{color:'#7BCC4C'}}>Konfirmasi Pilihan Anda</h2>
-              <p className="text-gray-700 mb-6">Apakah Anda yakin ingin memilih opsi ini dan melanjutkan ke hadiah?</p>
+              <h2 className="text-xl font-bold mb-4" style={{ color: '#7BCC4C' }}>
+                Konfirmasi Pilihan Anda
+              </h2>
+              <p className="text-gray-700 font-semibold mb-2">
+                {selectedOption.option_text}
+              </p>
+              {selectedOption.description && (
+                <p className="text-gray-600 italic mb-6">
+                  {selectedOption.description}
+                </p>
+              )}
               <button
                 onClick={handleButtonClickAndNavigate}
-                style={{backgroundColor:'#7BCC4C'}}
-                className="px-6 py-3  text-white rounded-lg font-semibold hover:bg-green-300 transition"
+                style={{ backgroundColor: '#7BCC4C' }}
+                className="px-6 py-3 text-white rounded-lg font-semibold hover:bg-green-300 transition"
               >
                 Klik dan Dapatkan Hadiah!
               </button>
