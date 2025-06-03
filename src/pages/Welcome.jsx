@@ -198,10 +198,11 @@ const Welcome = () => {
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center relative">
               <button
                 onClick={() => setShowModal(false)}
-                className="absolute top-2 right-2 text-gray-500 hover:text-red-500"
+                className="absolute top-3 right-3 w-10 h-10 bg-gray-200 hover:bg-red-500 text-black hover:text-white rounded-full flex items-center justify-center text-xl font-bold transition"
               >
                 ✕
               </button>
+
               <h2 className="text-xl font-bold mb-4" style={{ color: '#7BCC4C' }}>
                 Konfirmasi Pilihan Anda
               </h2>
