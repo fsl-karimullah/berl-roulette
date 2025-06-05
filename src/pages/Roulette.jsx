@@ -8,21 +8,21 @@ import { endpoint } from "../api/endpoint";
 const fallbackData = [
   {
     option: "Voucher 30%",
-    style: { fontSize: 12, backgroundColor: "#F4E3C5", textColor: "#000" },
+    style: { fontSize: 14, backgroundColor: "#F4E3C5", textColor: "#000" },
     img: "https://raw.githubusercontent.com/fsl-karimullah/my-img-source/refs/heads/main/ATN.webp",
-  },
+  }, 
   {
-    option: "Berl Eye Fella Hydra Stay Liner",
-    style: { fontSize: 10, backgroundColor: "#E8ACAC", textColor: "#000" },
+    option: "B erl Eye Fella (Natural Grey)", 
+    style: { fontSize: 14, backgroundColor: "#E8ACAC", textColor: "#000" },
     img: "https://github.com/fsl-karimullah/my-img-source/blob/main/mascara%201.png",
   },
   {
     option: "Affiliate Komisi 20%",
-    style: { fontSize: 12, backgroundColor: "#E8ACAC", textColor: "#000" },
+    style: { fontSize: 14, backgroundColor: "#E8ACAC", textColor: "#000" },
     img: "https://github.com/fsl-karimullah/my-img-source/blob/main/Voucher%2020.png?raw=true",
   },
-];
-
+]; 
+ 
 const getCurrentDateTime = () => {
   const now = new Date();
   return now.toLocaleString();
@@ -76,7 +76,7 @@ const Roulette = () => {
     return options.map((option, index) => ({
       option: option.option_text,
       style: {
-        fontSize: option.option_text.length > 15 ? 8 : 12,
+        fontSize: option.option_text.length > 15 ? 12 : 13,
         backgroundColor: colors[index % 2],
         textColor: "#000"
       },
@@ -137,7 +137,6 @@ const Roulette = () => {
 
         } else {
           console.log('sukses');
-
         }
       } else {
         console.warn('Invalid API response structure, using fallback data');
@@ -292,43 +291,45 @@ const Roulette = () => {
     }
   };
 
-  const closeModal = async () => {
-    setIsModalOpen(false);
+ const closeModal = async () => {
+  setIsModalOpen(false);
 
-    const localDataString = localStorage.getItem("rouletteSubmission");
+  const localDataString = localStorage.getItem("rouletteSubmission");
 
-    if (localDataString) {
-      try {
-        const requestBody = JSON.parse(localDataString);
+  if (localDataString) {
+    try {
+      const requestBody = JSON.parse(localDataString);
 
-        const response = await axios.post(endpoint.insertDataRoulette, requestBody, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          timeout: 15000,
-        });
+      const response = await axios.post(endpoint.insertDataRoulette, requestBody, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        timeout: 15000,
+      });
 
+      toast.success("Data berhasil disimpan!");
+      localStorage.removeItem("rouletteSubmission");
 
-        toast.success("Data berhasil disimpan!");
-        localStorage.removeItem("rouletteSubmission");
+      window.location.href = "https://wa.me/6282258569318";
 
-      } catch (error) {
-        if (error.response) {
-          const serverMessage = error.response.data?.message || "Terjadi kesalahan dari server.";
-          toast.error(`Gagal menyimpan data: ${serverMessage}`);
-        } else if (error.request) {
-          toast.error("Tidak dapat terhubung ke server. Coba lagi nanti.");
-        } else {
-          toast.error("Terjadi kesalahan saat mengirim data.");
-        }
-
-        console.error("Error submitting saved data:", error);
+    } catch (error) {
+      if (error.response) {
+        const serverMessage = error.response.data?.message || "Terjadi kesalahan dari server.";
+        toast.error(`Gagal menyimpan data: ${serverMessage}`);
+      } else if (error.request) {
+        toast.error("Tidak dapat terhubung ke server. Coba lagi nanti.");
+      } else {
+        toast.error("Terjadi kesalahan saat mengirim data.");
       }
-    }
 
-    fetchRouletteData(true);
-  };
+      console.error("Error submitting saved data:", error);
+    }
+  }
+
+  fetchRouletteData(true);
+};
+
 
 
 
@@ -341,13 +342,7 @@ const Roulette = () => {
     setIsSubmittingData(true);
 
     try {
-
-
-
-
       // Save to localStorage
-
-
       // Close WhatsApp modal, trigger closeModal after confirmation
       setIsWhatsAppModalOpen(false);
     } catch (error) {

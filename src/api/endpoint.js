@@ -8,10 +8,7 @@ export const endpoint = {
   getPollingData: `${url}/pollings`,
   getPollingById: (slug) => `${url}/pollings/${slug}`,
   getPollingRoulette: (slug) => `${url}/pollings/${slug}/roulettes`,
-
-
   //endpoint non polling
   getPrizeData: `${url}/roulettes/event`,
   insertDataRoulette: `${url}/roulettes/event`,
-
 };
